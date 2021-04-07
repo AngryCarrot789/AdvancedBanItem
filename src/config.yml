@@ -1,0 +1,25 @@
+# if the player is holding the block (or item...) and they right/left click
+# in the air with the item... if this value is true, it is processed as an
+# interaction (useful for a backpack maybe, disallowing backpacks)
+CountAirAsInteraction: false
+
+# allows bypassing of worlds (to be used below).
+# also, if this is true, the permission below CANNOT be empty
+AllowWorldPermissionBypass: true
+
+# allows bypassing of place/break/interact permissions (to be used below).
+# also, if this is true, the permission below CANNOT be empty
+AllowPermsPermissionBypass: true
+
+# anyone with this permission bypasses the world limitation. meaning, even if
+# a block is disallowed in a specific world, if a player has the bypass world
+# permission, they can place the block anyway. this isn't affected by "InvertWorlds"
+# but... that doesn't mean they can bypass the place/break/etc permission, that's a few lines down
+BypassWorldPermission: advbanitem.bypass.world
+
+# the permission required to bypasses all of the limits for EVERY block, not a single block. if you only
+# want to bypass a specific block, you could just add the limit's permission to yourself in pex... and this
+# also IS NOT affected by "InvertPermissions" in the limits.yml config.
+# and also this permission doesn't skip the world check. if you have bypass perms, but the block
+# is disabled in the world (or if you dont have world bypass perms), you CAN NOT place the block.
+BypassPermsPermission: advbanitem.bypass.perms

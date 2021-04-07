@@ -1,0 +1,26 @@
+name: AdvancedBanItem
+version: 1.2.42
+description: A plugin for limiting what blocks players can place, break or interact with based on permissions
+author: Carrot/REghZy
+main: reghzy.advbanitem.AdvancedBanItem
+prefix: AdvancedBanItem
+
+permissions:
+  advbanitem.perms.commands.add:
+    default: op
+  advbanitem.perms.commands.remove:
+    default: op
+  advbanitem.perms.commands.edit:
+    default: op
+  advbanitem.perms.commands.reload:
+    default: op
+  advbanitem.perms.commands.display:
+    default: op
+
+commands:
+  advbanitem:
+    permission: advbanitem.perms.commands
+    description: Main command for AdvancedBanItem
+    usage: /advbanitem
+    aliases:
+      - abi

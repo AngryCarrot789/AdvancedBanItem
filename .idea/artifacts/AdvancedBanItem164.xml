@@ -1,7 +1,7 @@
 <component name="ArtifactManager">
-  <artifact type="jar" name="AdvancedBanItemVanilla">
-    <output-path>$PROJECT_DIR$/../../MinecraftUtils/server/vanilla-1.6.4/plugins</output-path>
-    <root id="archive" name="AdvancedBanItem.jar">
+  <artifact type="jar" name="AdvancedBanItem164">
+    <output-path>$USER_HOME$/Desktop</output-path>
+    <root id="archive" name="AdvancedBanItem164.jar">
       <element id="module-output" name="PexAntiBuild" />
       <element id="file-copy" path="$PROJECT_DIR$/src/config.yml" />
       <element id="file-copy" path="$PROJECT_DIR$/src/plugin.yml" />

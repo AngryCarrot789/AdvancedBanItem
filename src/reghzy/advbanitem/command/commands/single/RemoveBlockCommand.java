@@ -5,22 +5,19 @@ import reghzy.advbanitem.AdvancedBanItem;
 import reghzy.advbanitem.command.CommandDescriptor;
 import reghzy.advbanitem.command.ExecutableCommand;
 import reghzy.advbanitem.command.helpers.ArgsParser;
-import reghzy.advbanitem.command.helpers.ItemDataPair;
 import reghzy.advbanitem.command.helpers.ParsedValue;
-import reghzy.advbanitem.helpers.PermissionsHelper;
+import reghzy.advbanitem.permissions.PermissionsHelper;
 import reghzy.advbanitem.limit.BlockLimiter;
 import reghzy.advbanitem.limit.WorldLookup;
 import reghzy.advbanitem.logs.ChatFormat;
 import reghzy.advbanitem.logs.ChatLogger;
 
-import java.util.ArrayList;
-
 public class RemoveBlockCommand implements ExecutableCommand {
-    public static CommandDescriptor descriptor =
+    public static final CommandDescriptor descriptor =
             new CommandDescriptor(
                     "remove",
                     "<id>",
-                    "Removes a block limiter with the given ID\n " +
+                    "Removes a block limiter for the given ID\n " +
                     "Example: /abi remove 12");
 
     @Override
@@ -42,6 +39,7 @@ public class RemoveBlockCommand implements ExecutableCommand {
         }
         else {
             WorldLookup.removeBlockDisallowedWorld(blockId.value);
+            AdvancedBanItem.getInstance().getLimitManager().saveDataToConfig();
             logger.logInfoPrefix("Removed the limiter for block ID: " + ChatFormat.apostrophise(blockId.value.toString()));
         }
     }

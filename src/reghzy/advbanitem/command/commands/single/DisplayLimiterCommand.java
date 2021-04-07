@@ -7,7 +7,7 @@ import reghzy.advbanitem.command.CommandDescriptor;
 import reghzy.advbanitem.command.ExecutableCommand;
 import reghzy.advbanitem.command.helpers.ArgsParser;
 import reghzy.advbanitem.command.helpers.ParsedValue;
-import reghzy.advbanitem.helpers.PermissionsHelper;
+import reghzy.advbanitem.permissions.PermissionsHelper;
 import reghzy.advbanitem.limit.BlockLimiter;
 import reghzy.advbanitem.limit.WorldLookup;
 import reghzy.advbanitem.logs.ChatLogger;
@@ -15,7 +15,7 @@ import reghzy.advbanitem.logs.ChatLogger;
 import java.util.ArrayList;
 
 public class DisplayLimiterCommand implements ExecutableCommand {
-    public static CommandDescriptor descriptor =
+    public static final CommandDescriptor descriptor =
             new CommandDescriptor(
                     "display",
                     "<id>",
@@ -76,13 +76,19 @@ public class DisplayLimiterCommand implements ExecutableCommand {
             }
             logger.logInfo(worldConcat.toString());
         }
-        logger.logInfo("Place permission: " + ChatColor.DARK_AQUA + limiter.placePermission);
-        logger.logInfo("Break permission: " + ChatColor.DARK_AQUA + limiter.breakPermission);
-        logger.logInfo("Interact permission: " + ChatColor.DARK_AQUA + limiter.interactPermission);
+        logger.logInfo("Place permission: " + ChatColor.DARK_AQUA + nullPermissionCheck(limiter.placePermission));
+        logger.logInfo("Break permission: " + ChatColor.DARK_AQUA + nullPermissionCheck(limiter.breakPermission));
+        logger.logInfo("Interact permission: " + ChatColor.DARK_AQUA + nullPermissionCheck(limiter.interactPermission));
         logger.logInfo("No Place Message: " + ChatColor.DARK_AQUA + limiter.noPlaceMessage);
         logger.logInfo("No Break Message: " + ChatColor.DARK_AQUA + limiter.noBreakMessage);
         logger.logInfo("No Interact Message: " + ChatColor.DARK_AQUA + limiter.noInteractMessage);
         logger.logInfo("Invert Worlds: " + ChatColor.DARK_AQUA + limiter.invertWorld);
         logger.logInfo("Invert Perms: " + ChatColor.DARK_AQUA + limiter.invertPermission);
+    }
+
+    private static String nullPermissionCheck(String permission) {
+        if (permission == null)
+            return "&4[No permission]";
+        return permission;
     }
 }

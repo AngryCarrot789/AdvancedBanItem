@@ -4,7 +4,6 @@ import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import reghzy.advbanitem.helpers.StringHelper;
-import reghzy.advbanitem.helpers.WorldHelper;
 
 // a null-safe class used for parsing commands and stuff.
 // never directly returns null, and never throws exceptions
@@ -53,7 +52,8 @@ public final class ArgsParser {
             return new ParsedValue<Boolean>(false, true);
         }
         String content = args[index];
-        if (content.equalsIgnoreCase("true") || content.equalsIgnoreCase("t")) {
+        if (content.equalsIgnoreCase("true") || content.equalsIgnoreCase("t") ||
+            content.equalsIgnoreCase("yes") || content.equalsIgnoreCase("y")) {
             return new ParsedValue<Boolean>(true, false);
         }
         else {
@@ -136,35 +136,6 @@ public final class ArgsParser {
         }
         else {
             return new ParsedValue<World>(null, true);
-        }
-    }
-
-    /**
-     * Tries to get the world name in args at the given index, then tries to find the world with that name
-     */
-    public static ParsedValue<World> parseWorld(String[] args, int index) {
-        if (argsTooSmall(args, index)) {
-            return new ParsedValue<World>(null, true);
-        }
-        String worldName = args[index];
-        World world = WorldHelper.getWorldFromName(worldName);
-        if (world == null) {
-            return new ParsedValue<World>(null, true);
-        }
-        return new ParsedValue<World>(world, false);
-    }
-
-    /**
-     * Tries to either parse the world name in args at the given index
-     * and find the world with that name, or tries to get the sender's world
-     */
-    public static ParsedValue<World> parseWorldOrPlayerWorld(CommandSender sender, String[] args, int index) {
-        ParsedValue<World> world = parseWorld(args, index);
-        if (world.failed) {
-            return getSenderWorld(sender);
-        }
-        else {
-            return world;
         }
     }
 

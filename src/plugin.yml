@@ -4,6 +4,9 @@ description: A plugin for limiting what blocks players can place, break or inter
 author: Carrot/REghZy
 main: reghzy.advbanitem.AdvancedBanItem
 prefix: AdvancedBanItem
+softdepend:
+  - PermissionsEx
+  - LuckPerms
 
 permissions:
   advbanitem.perms.commands.add:

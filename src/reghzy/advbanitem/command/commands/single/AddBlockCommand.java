@@ -7,7 +7,7 @@ import reghzy.advbanitem.command.ExecutableCommand;
 import reghzy.advbanitem.command.helpers.ArgsParser;
 import reghzy.advbanitem.command.helpers.ItemDataPair;
 import reghzy.advbanitem.command.helpers.ParsedValue;
-import reghzy.advbanitem.helpers.PermissionsHelper;
+import reghzy.advbanitem.permissions.PermissionsHelper;
 import reghzy.advbanitem.limit.BlockLimiter;
 import reghzy.advbanitem.logs.ChatFormat;
 import reghzy.advbanitem.logs.ChatLogger;
@@ -16,12 +16,11 @@ import java.util.ArrayList;
 import java.util.HashSet;
 
 public class AddBlockCommand implements ExecutableCommand {
-    public static CommandDescriptor descriptor =
+    public static final CommandDescriptor descriptor =
             new CommandDescriptor(
                     "add",
                     "<id:data> [place] [break] [interact]",
-                    "Adds a block that should be limited. Optional parameters for place/break/interact permissions. " +
-                    "By default, no permissions = everyone can use the block\n" +
+                    "Adds a block that should be limited. Optional parameters for permissions.\n" +
                     "Example: /abi add 12:-1 bans.noplace.12 bans.nobreak.12");
 
     @Override
@@ -54,6 +53,7 @@ public class AddBlockCommand implements ExecutableCommand {
                 interPermission.failed ? null : interPermission.value,
                 null, null, null);
         AdvancedBanItem.getInstance().getLimitManager().addLimiter(limiter.id, limiter);
+        AdvancedBanItem.getInstance().getLimitManager().saveDataToConfig();
 
         logger.logInfoPrefix("Added the block " + ChatFormat.apostrophise(newBlock.value.toString()));
     }

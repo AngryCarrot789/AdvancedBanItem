@@ -8,11 +8,10 @@ import reghzy.advbanitem.logs.ChatFormat;
 import reghzy.advbanitem.logs.ChatLogger;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 
 public class Config extends YamlConfiguration {
-    private File file;
+    private final File file;
     private final JavaPlugin plugin;
     private final ChatLogger logger;
 

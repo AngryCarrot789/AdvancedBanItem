@@ -5,7 +5,7 @@ import reghzy.advbanitem.AdvancedBanItem;
 import reghzy.advbanitem.config.Config;
 import reghzy.advbanitem.config.ConfigManager;
 import reghzy.advbanitem.limit.LimitManager;
-import reghzy.advbanitem.listeners.BlockListener;
+import reghzy.advbanitem.listeners.BlockItemListener;
 import reghzy.advbanitem.command.CommandDescriptor;
 import reghzy.advbanitem.command.ExecutableCommand;
 import reghzy.advbanitem.command.helpers.ArgsParser;
@@ -14,11 +14,11 @@ import reghzy.advbanitem.logs.ChatFormat;
 import reghzy.advbanitem.logs.ChatLogger;
 
 public class ReloadConfigCommand implements ExecutableCommand {
-    public static CommandDescriptor descriptor =
+    public static final CommandDescriptor descriptor =
             new CommandDescriptor(
                     "reload",
                     "<config name>",
-                    "reloads the given config");
+                    "Reloads the given config. There's main and limits");
 
     @Override
     public void execute(CommandSender commandSender, ChatLogger logger, String[] args) {
@@ -31,7 +31,7 @@ public class ReloadConfigCommand implements ExecutableCommand {
         if (configName.value.equalsIgnoreCase("main")) {
             if (ConfigManager.getMainConfig().tryLoadYaml()) {
                 logger.logInfoPrefix(ChatFormat.green("Successfully reloaded the main config!"));
-                BlockListener.reloadInfoFromConfig(ConfigManager.getMainConfig());
+                BlockItemListener.reloadInfoFromConfig(ConfigManager.getMainConfig());
             }
             else {
                 logger.logInfoPrefix(ChatFormat.red("Failed to reload the main config!"));

@@ -1,27 +1,26 @@
 package reghzy.advbanitem.command.commands.single;
 
+import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
-import org.omg.CosNaming._BindingIteratorImplBase;
 import reghzy.advbanitem.AdvancedBanItem;
 import reghzy.advbanitem.command.CommandDescriptor;
 import reghzy.advbanitem.command.ExecutableCommand;
 import reghzy.advbanitem.command.helpers.ArgsParser;
 import reghzy.advbanitem.command.helpers.ParsedValue;
-import reghzy.advbanitem.helpers.PermissionsHelper;
-import reghzy.advbanitem.helpers.StringHelper;
+import reghzy.advbanitem.permissions.PermissionsHelper;
 import reghzy.advbanitem.limit.BlockLimiter;
 import reghzy.advbanitem.limit.LimitManager;
 import reghzy.advbanitem.limit.WorldLookup;
-import reghzy.advbanitem.logs.ChatFormat;
 import reghzy.advbanitem.logs.ChatLogger;
 
 import java.util.ArrayList;
 
 public class EditBlockLimitCommands implements ExecutableCommand {
-    public static CommandDescriptor descriptor =
+    public static final CommandDescriptor descriptor =
             new CommandDescriptor(
                     "edit",
                     "<id> <variable or addworld/removeworld> <value>",
+                    "Allows you to edit anything in the given block limiter. To remove permissions use !\n" +
                     "Example: /abi edit 12 addworld w-mining");
 
     @Override
@@ -77,10 +76,10 @@ public class EditBlockLimitCommands implements ExecutableCommand {
             }
             else {
                 if (newId.value.equals(parsedId.value)) {
-                    logger.logInfoPrefix("The IDs are the same... ;)");
+                    logger.logInfoPrefix("The IDs are the same...");
                 }
                 else {
-                    logger.logInfoPrefix("Changing the ID from " + limiter.id + " to " + newId.value);
+                    logger.logInfoPrefix("Changing the ID from " + keyword(limiter.id) + " to " + keyword(newId.value));
                     limiter.id = newId.value;
                     ArrayList<Integer> worldsHashes = WorldLookup.removeBlockDisallowedWorld(parsedId.value);
                     // this should never be null, but it could have no elements
@@ -100,10 +99,10 @@ public class EditBlockLimitCommands implements ExecutableCommand {
             }
             else {
                 if (limiter.metadata.add(metadata.value)) {
-                    logger.logInfoPrefix("Added metadata: " + metadata.value);
+                    logger.logInfoPrefix("Added metadata: " + keyword(metadata.value));
                 }
                 else {
-                    logger.logInfoPrefix("Metadata " + metadata.value + " is already added!");
+                    logger.logInfoPrefix("Metadata " + keyword(metadata.value) + " is already added!");
                 }
             }
         }
@@ -114,64 +113,108 @@ public class EditBlockLimitCommands implements ExecutableCommand {
             }
             else {
                 if (limiter.metadata.remove(metadata.value)) {
-                    logger.logInfoPrefix("Removed metadata: " + metadata.value);
+                    logger.logInfoPrefix("Removed metadata: " + keyword(metadata.value));
                 }
                 else {
-                    logger.logInfoPrefix("This block limit doesn't contain the metadata " + metadata.value + "!");
+                    logger.logInfoPrefix("This block limit doesn't contain the metadata " + keyword(metadata.value) + ChatColor.GOLD + "!");
                 }
             }
         }
         else if (parsedVariable.value.equalsIgnoreCase("addworld")) {
-            WorldLookup.addBlockDisallowedWorld(limiter.id, args[2]);
-            logger.logInfoPrefix("Added world: " + args[2]);
-            AdvancedBanItem.getInstance().getLimitManager().saveDataToConfig();
+            ParsedValue<String> world = ArgsParser.parseString(args, 2);
+            if (world.failed) {
+                logger.logInfoPrefix("Error with the world to add");
+            }
+            else {
+                WorldLookup.addBlockDisallowedWorld(limiter.id, world.value);
+                logger.logInfoPrefix("Added world: " + keyword(world.value));
+                AdvancedBanItem.getInstance().getLimitManager().saveDataToConfig();
+            }
         }
         else if (parsedVariable.value.equalsIgnoreCase("removeworld")) {
-            WorldLookup.removeBlockDisallowedWorld(limiter.id, args[2]);
-            logger.logInfoPrefix("Removed world: " + args[2]);
-            AdvancedBanItem.getInstance().getLimitManager().saveDataToConfig();
+            ParsedValue<String> world = ArgsParser.parseString(args, 2);
+            if (world.failed) {
+                logger.logInfoPrefix("Error with the world to add");
+            }
+            else {
+                WorldLookup.removeBlockDisallowedWorld(limiter.id, world.value);
+                logger.logInfoPrefix("Removed world: " + keyword(world.value));
+                AdvancedBanItem.getInstance().getLimitManager().saveDataToConfig();
+            }
         }
         else if (parsedVariable.value.equalsIgnoreCase("place")) {
-            logger.logInfoPrefix("Changing the permission required to place the " +
-                                 "block from: " + limiter.placePermission + " to " + args[2]);
-            limiter.placePermission = args[2];
+            if (args[2].equals("!")) {
+                logger.logInfoPrefix("Removing the place permissions. It was originally " + keyword(limiter.placePermission));
+                limiter.placePermission = null;
+            }
+            else {
+                logger.logInfoPrefix("Changing the permission required to place the " +
+                                     "block from: " + keyword(limiter.breakPermission) +
+                                     " to " + keyword(args[2]));
+                limiter.placePermission = args[2];
+            }
             AdvancedBanItem.getInstance().getLimitManager().saveDataToConfig();
         }
         else if (parsedVariable.value.equalsIgnoreCase("break")) {
-            logger.logInfoPrefix("Changing the permission required to break the " +
-                                 "block from: " + limiter.placePermission + " to " + args[2]);
-            limiter.breakPermission = args[2];
+            if (args[2].equals("!")) {
+                logger.logInfoPrefix("Removing the break permissions. It was originally " + keyword(limiter.placePermission));
+                limiter.placePermission = null;
+            }
+            else {
+                logger.logInfoPrefix("Changing the permission required to break the " +
+                                     "block from: " + keyword(limiter.breakPermission) +
+                                     " to " + keyword(args[2]));
+                limiter.breakPermission = args[2];
+            }
             AdvancedBanItem.getInstance().getLimitManager().saveDataToConfig();
         }
         else if (parsedVariable.value.equalsIgnoreCase("interact")) {
-            logger.logInfoPrefix("Changing the permission required to break the " +
-                                 "block from: " + limiter.placePermission + " to " + args[2]);
-            limiter.interactPermission = args[2];
+            if (args[2].equals("!")) {
+                logger.logInfoPrefix("Removing the interact permissions. It was originally " + keyword(limiter.placePermission));
+                limiter.placePermission = null;
+            }
+            else {
+                logger.logInfoPrefix("Changing the permission required to interact with the " +
+                                     "block from: " + keyword(limiter.interactPermission) +
+                                     " to " + keyword(args[2]));
+                limiter.interactPermission = args[2];
+            }
             AdvancedBanItem.getInstance().getLimitManager().saveDataToConfig();
         }
         else if (parsedVariable.value.equalsIgnoreCase("placemsg")) {
             String newMessage = ArgsParser.combineEndArgs(args, 2).value;
-            logger.logInfoPrefix("Changing the \"no permission to place\" message from " +
-                                 limiter.noPlaceMessage + " to " +
-                                 newMessage);
+            logger.logInfoPrefix("Changing the message from " +
+                                 keyword(limiter.noPlaceMessage) + " to " +
+                                 keyword(newMessage));
             limiter.noPlaceMessage = newMessage;
             AdvancedBanItem.getInstance().getLimitManager().saveDataToConfig();
         }
         else if (parsedVariable.value.equalsIgnoreCase("breakmsg")) {
             String newMessage = ArgsParser.combineEndArgs(args, 2).value;
-            logger.logInfoPrefix("Changing the \"no permission to break\" message from " +
-                                 limiter.noBreakMessage + " to " +
-                                 newMessage);
+            logger.logInfoPrefix("Changing the message from " +
+                                 keyword(limiter.noBreakMessage) + " to " +
+                                 keyword(newMessage));
             limiter.noBreakMessage = newMessage;
             AdvancedBanItem.getInstance().getLimitManager().saveDataToConfig();
         }
         else if (parsedVariable.value.equalsIgnoreCase("interactmsg")) {
             String newMessage = ArgsParser.combineEndArgs(args, 2).value;
-            logger.logInfoPrefix("Changing the \"no permission to interact\" message from " +
-                                 limiter.noInteractMessage + " to " +
-                                 newMessage);
+            logger.logInfoPrefix("Changing the message from " +
+                                 keyword(limiter.noInteractMessage) + " to " +
+                                 keyword(newMessage));
             limiter.noInteractMessage = newMessage;
             AdvancedBanItem.getInstance().getLimitManager().saveDataToConfig();
+        }
+        else if (parsedVariable.value.equalsIgnoreCase("invertmetadata")) {
+            ParsedValue<Boolean> parsedInvert = ArgsParser.parseBoolean(args, 2);
+            if (parsedInvert.failed) {
+                logger.logInfoPrefix("Error with the boolean value. it can be t/true or f/false");
+            }
+            else {
+                limiter.invertMetadata = parsedInvert.value;
+                logger.logInfoPrefix("Set invert metadata to " + keyword(limiter.invertMetadata));
+                AdvancedBanItem.getInstance().getLimitManager().saveDataToConfig();
+            }
         }
         else if (parsedVariable.value.equalsIgnoreCase("invertworlds")) {
             ParsedValue<Boolean> parsedInvert = ArgsParser.parseBoolean(args, 2);
@@ -180,7 +223,7 @@ public class EditBlockLimitCommands implements ExecutableCommand {
             }
             else {
                 limiter.invertWorld = parsedInvert.value;
-                logger.logInfoPrefix("Set invert worlds to " + limiter.invertWorld);
+                logger.logInfoPrefix("Set invert worlds to " + keyword(limiter.invertWorld));
                 AdvancedBanItem.getInstance().getLimitManager().saveDataToConfig();
             }
         }
@@ -190,14 +233,26 @@ public class EditBlockLimitCommands implements ExecutableCommand {
                 logger.logInfoPrefix("Error with the boolean value. it can be t/true or f/false");
             }
             else {
-                limiter.invertWorld = parsedInvert.value;
-                logger.logInfoPrefix("Set invert permissions to " + limiter.invertWorld);
+                limiter.invertPermission = parsedInvert.value;
+                logger.logInfoPrefix("Set invert permissions to " + keyword(limiter.invertPermission));
                 AdvancedBanItem.getInstance().getLimitManager().saveDataToConfig();
             }
         }
         else {
-            logger.logInfoPrefix("That variable doesn't exist. Theres: id, meta, invertworlds, invertperms, place, break, interact");
-            logger.logInfoPrefix("These 2 aren't really variables, but: addworld, removeworld");
+            logger.logInfoPrefix("That variable doesn't exist. Theres: id, invertworlds, invertperms, place, break, interact");
+            logger.logInfoPrefix("These 4 aren't really variables, but: addmeta, removemeta, addworld, removeworld");
         }
+    }
+
+    private static String keyword(String keyword) {
+        return ChatColor.DARK_AQUA + keyword + ChatColor.GOLD;
+    }
+
+    private static String keyword(Integer keyword) {
+        return ChatColor.DARK_AQUA + String.valueOf(keyword) + ChatColor.GOLD;
+    }
+
+    private static String keyword(Boolean keyword) {
+        return ChatColor.DARK_AQUA + String.valueOf(keyword) + ChatColor.GOLD;
     }
 }

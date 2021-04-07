@@ -2,7 +2,7 @@ package reghzy.advbanitem.limit;
 
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-import reghzy.advbanitem.helpers.PermissionsHelper;
+import reghzy.advbanitem.permissions.PermissionsHelper;
 
 import java.util.HashSet;
 import java.util.List;
@@ -14,7 +14,7 @@ import java.util.List;
  */
 public class BlockLimiter {
     public int id;
-    public HashSet<Integer> metadata;
+    public final HashSet<Integer> metadata;
     public boolean invertMetadata;
     public boolean invertPermission;
     public boolean invertWorld;
@@ -85,11 +85,19 @@ public class BlockLimiter {
 
     public boolean hasMetadata(int data) {
         if (invertMetadata) {
+            if (ignoreMetadata())
+                return false;
             return !this.metadata.contains(data);
         }
         else {
+            if (ignoreMetadata())
+                return true;
             return this.metadata.contains(data);
         }
+    }
+
+    public boolean ignoreMetadata() {
+        return this.metadata.contains(-1);
     }
 
     public boolean hasPermission(Player player, String permission) {

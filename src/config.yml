@@ -1,7 +1,15 @@
 # if the player is holding the block (or item...) and they right/left click
 # in the air with the item... if this value is true, it is processed as an
 # interaction (useful for a backpack maybe, disallowing backpacks)
-CountAirAsInteraction: false
+CountAirAsInteraction: true
+
+# whether players right clicking placed blocks with their hand (or any held item)
+# counts as an interaction with a block. idk why this would be useful but if it's true,
+# if a player right clicks a block but that block/item doesn't allow interactions,
+# it cancells the interaction and the player gets messaged :)
+# this is only really useful if you want to allow the banning of items, not just blocks
+# if this is false, you cant ban items, only blocks
+ProcessPlacedBlockInteraction: true
 
 # allows bypassing of worlds (to be used below).
 # also, if this is true, the permission below CANNOT be empty

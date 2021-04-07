@@ -7,7 +7,7 @@ import org.bukkit.command.CommandSender;
 import reghzy.advbanitem.AdvancedBanItem;
 import reghzy.advbanitem.command.commands.single.*;
 import reghzy.advbanitem.command.helpers.ArgsParser;
-import reghzy.advbanitem.helpers.PermissionsHelper;
+import reghzy.advbanitem.permissions.PermissionsHelper;
 import reghzy.advbanitem.logs.ChatFormat;
 import reghzy.advbanitem.logs.ChatLogger;
 
@@ -20,6 +20,7 @@ public class MainCommandExecutor implements CommandExecutor {
     public MainCommandExecutor() {
         commandMap = new HashMap<String, ExecutableCommand>();
         commandMap.put("help", new HelpCommand());
+        commandMap.put("look", new LookBlockInfoCommand());
         commandMap.put("add", new AddBlockCommand());
         commandMap.put("remove", new RemoveBlockCommand());
         commandMap.put("edit", new EditBlockLimitCommands());

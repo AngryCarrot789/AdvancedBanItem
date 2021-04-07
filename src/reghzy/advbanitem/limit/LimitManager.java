@@ -1,11 +1,12 @@
 package reghzy.advbanitem.limit;
 
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import reghzy.advbanitem.AdvancedBanItem;
 import reghzy.advbanitem.config.Config;
-import reghzy.advbanitem.helpers.PermissionsHelper;
+import reghzy.advbanitem.permissions.PermissionsHelper;
 import reghzy.advbanitem.logs.ChatFormat;
 import reghzy.advbanitem.logs.ChatLogger;
 
@@ -110,7 +111,6 @@ public class LimitManager {
                 section = config.createSection(String.valueOf(limiter.id));
             }
 
-            config.set("", null);
             ArrayList<String> worldNames = WorldLookup.getWorldNamesFromId(limiter.id);
             if (worldNames == null)
                 worldNames = new ArrayList<String>(0);
@@ -155,10 +155,10 @@ public class LimitManager {
         if (playerBypassesChecks(player))
             return false;
 
-        BlockLimiter limiter = blockLimiters.get(block.getTypeId());
+        BlockLimiter limiter = blockLimiters.get(block.getType().getId());
         if (limiter == null)
             return false;
-        if (limiter.hasMetadata(-1) || limiter.hasMetadata(block.getData())) {
+        if (limiter.hasMetadata(block.getData())) {
             if (limiter.canBreak(player))
                 return false;
 
@@ -173,11 +173,11 @@ public class LimitManager {
         if (playerBypassesChecks(player))
             return false;
 
-        BlockLimiter limiter = blockLimiters.get(block.getTypeId());
+        BlockLimiter limiter = blockLimiters.get(block.getType().getId());
         if (limiter == null)
             return false;
 
-        if (limiter.hasMetadata(-1) || limiter.hasMetadata(block.getData())) {
+        if (limiter.hasMetadata(block.getData())) {
             if (limiter.canPlace(player))
                 return false;
 
@@ -188,12 +188,12 @@ public class LimitManager {
     }
 
     // returns true if the event should be cancelled
-    public boolean shouldCancelBlockInteract(Player player, Block block) {
-        return shouldCancelBlockInteract(player, block.getTypeId(), block.getData());
+    public boolean shouldCancelInteract(Player player, Block block) {
+        return shouldCancelInteract(player, block.getType().getId(), block.getData());
     }
 
     // returns true if the event should be cancelled
-    public boolean shouldCancelBlockInteract(Player player, int id, byte data) {
+    public boolean shouldCancelInteract(Player player, int id, byte data) {
         if (playerBypassesChecks(player))
             return false;
 
@@ -201,7 +201,7 @@ public class LimitManager {
         if (limiter == null)
             return false;
 
-        if (limiter.hasMetadata(-1) || limiter.hasMetadata(data)) {
+        if (limiter.hasMetadata(data)) {
             if (limiter.canInteract(player))
                 return false;
 
@@ -222,18 +222,18 @@ public class LimitManager {
     }
 
     public static void sendDenyMessage(Player player, String message, BlockLimiter limiter) {
-        player.sendMessage(AdvancedBanItem.getInstance().getChatPrefix() + " " + translateWildcards(message, limiter));
+        player.sendMessage(AdvancedBanItem.getInstance().getChatPrefix() + " " + translateWildcards(message, limiter, player));
     }
 
-    public static String translateWildcards(String message, BlockLimiter limiter) {
+    public static String translateWildcards(String message, BlockLimiter limiter, Player player) {
         StringBuilder newMessage = new StringBuilder(message.length() * 4);
         for(int i = 0; i < message.length(); i++) {
             char c = message.charAt(i);
             if (c == '%') {
-                newMessage.append(getLimiterWildcard(message.charAt(++i), limiter));
+                newMessage.append(getLimiterWildcard(message.charAt(++i), limiter, player));
             }
             else if (c == '&') {
-                newMessage.append((char) 167).append(message.charAt(++i))
+                newMessage.append((char) 167).append(message.charAt(++i));
             }
             else {
                 newMessage.append(c);
@@ -242,13 +242,30 @@ public class LimitManager {
         return newMessage.toString();
     }
 
-    public static String getLimiterWildcard(char wildcard, BlockLimiter limiter) {
+    public static String getLimiterWildcard(char wildcard, BlockLimiter limiter, Player player) {
         if (wildcard == 'p')
-            return (limiter.placePermission == null) ? "[none]" : limiter.placePermission;
+            return nullCheckPermission(limiter.placePermission);
         if (wildcard == 'b')
-            return (limiter.breakPermission == null) ? "[none]" : limiter.breakPermission;
+            return nullCheckPermission(limiter.breakPermission);
         if (wildcard == 'i')
-            return (limiter.interactPermission == null) ? "[none]" : limiter.interactPermission;
+            return nullCheckPermission(limiter.interactPermission);
+        if (wildcard == 'u')
+            return player.getName();
+        if (wildcard == 'w') {
+            World world = player.getWorld();
+            if (world != null) {
+                String name = world.getName();
+                if (name != null)
+                    return name;
+            }
+            return "[Unknown world]";
+        }
         return "";
+    }
+
+    private static String nullCheckPermission(String permission) {
+        if (permission == null)
+            return "[No permission]";
+        return permission;
     }
 }

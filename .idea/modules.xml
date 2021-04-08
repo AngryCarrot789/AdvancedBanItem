@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/PexAntiBuild.iml" filepath="$PROJECT_DIR$/PexAntiBuild.iml" />
+      <module fileurl="file://$PROJECT_DIR$/AdvancedBanItem.iml" filepath="$PROJECT_DIR$/AdvancedBanItem.iml" />
     </modules>
   </component>
 </project>

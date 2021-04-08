@@ -2,7 +2,7 @@
   <artifact type="jar" name="AdvancedBanItem1165:jar">
     <output-path>$USER_HOME$/Desktop</output-path>
     <root id="archive" name="AdvancedBanItem1665.jar">
-      <element id="module-output" name="PexAntiBuild" />
+      <element id="module-output" name="AdvancedBanItem" />
       <element id="file-copy" path="$PROJECT_DIR$/src/config.yml" />
       <element id="file-copy" path="$PROJECT_DIR$/src/limits.yml" />
       <element id="file-copy" path="$PROJECT_DIR$/src/plugin.yml" />

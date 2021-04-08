@@ -7,14 +7,10 @@ import reghzy.advbanitem.command.CommandDescriptor;
 import reghzy.advbanitem.command.ExecutableCommand;
 import reghzy.advbanitem.command.helpers.ArgsParser;
 import reghzy.advbanitem.command.helpers.ParsedValue;
-import reghzy.advbanitem.limit.WorldLookup;
 import reghzy.advbanitem.permissions.PermissionsHelper;
 import reghzy.advbanitem.limit.BlockLimiter;
 import reghzy.advbanitem.limit.LimitManager;
-import reghzy.advbanitem.limit.OldWorldLookup;
 import reghzy.advbanitem.logs.ChatLogger;
-
-import java.util.ArrayList;
 
 public class EditBlockLimitCommands implements ExecutableCommand {
     public static final CommandDescriptor descriptor =

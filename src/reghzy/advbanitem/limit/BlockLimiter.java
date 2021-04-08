@@ -114,7 +114,6 @@ public class BlockLimiter {
                                     invertPermissions, invertWorlds,
                                     placePermission, breakPermission, interactPermission,
                                     noPlaceMessage, noBreakMessage, noInteractMessage));
-                            WorldLookup.addDisallowed(id, meta, disallowedWorlds);
                         }
                     }
                     catch (Exception e) {

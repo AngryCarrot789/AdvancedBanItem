@@ -1,7 +1,6 @@
 package reghzy.advbanitem.limit;
 
 import org.bukkit.configuration.ConfigurationSection;
-import reghzy.advbanitem.config.Config;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,7 +65,7 @@ public class LimitConfigHelper {
 
     public static List<String> getDisallowedWorlds(ConfigurationSection section, List<String> defaultWorlds) {
         List<String> worlds = section.getStringList(DisallowedWorldsName);
-        if (worlds == null)
+        if (worlds == null || worlds.isEmpty())
             return defaultWorlds;
         return worlds;
     }
@@ -112,7 +111,7 @@ public class LimitConfigHelper {
     // ########################################## Getters ###########################################
     public static List<String> getDefaultDisallowedWorlds(ConfigurationSection section) {
         List<String> worlds = section.getStringList(DefaultDisallowedWorldsName);
-        if (worlds == null)
+        if (worlds == null || worlds.isEmpty())
             return new ArrayList<String>(0);
         return worlds;
     }

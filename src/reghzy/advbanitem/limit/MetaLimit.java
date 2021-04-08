@@ -39,10 +39,8 @@ public class MetaLimit {
         this.noPlaceMessage     = noPlaceMessage;
         this.noBreakMessage     = noBreakMessage;
         this.noInteractMessage  = noInteractMessage;
-    }
 
-    public static MetaLimit createDefault(int id, int metadata, String noPlaceMessage, String noBreakMessage, String noInteractMessage) {
-        return new MetaLimit(id, metadata, new ArrayList<String>(), false, false, null, null, null, noPlaceMessage, noBreakMessage, noInteractMessage);
+        WorldLookup.addDisallowed(this.id, this.metadata, this.disallowedWorlds);
     }
 
     public boolean canPlace(Player player) {

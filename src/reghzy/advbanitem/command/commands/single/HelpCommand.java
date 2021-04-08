@@ -17,10 +17,11 @@ public class HelpCommand implements ExecutableCommand {
     @Override
     public void execute(CommandSender sender, ChatLogger logger, String[] strings) {
         displayIfPerms(sender, AdvancedBanItem.CommandsPermission, logger, HelpCommand.descriptor);
-        displayIfPerms(sender, AdvancedBanItem.LookBlockInfoPermission, logger, LookBlockInfoCommand.descriptor);
-        displayIfPerms(sender, AdvancedBanItem.AddBlockPermission, logger, AddBlockCommand.descriptor);
-        displayIfPerms(sender, AdvancedBanItem.RemoveBlockPermission, logger, RemoveBlockCommand.descriptor);
-        displayIfPerms(sender, AdvancedBanItem.EditBlockPermission, logger, EditBlockLimitCommands.descriptor);
+        displayIfPerms(sender, AdvancedBanItem.LookHandInfoPermission, logger, LookBlockInfoCommand.descriptor);
+        displayIfPerms(sender, AdvancedBanItem.LookHandInfoPermission, logger, HandItemInfoCommand.descriptor);
+        //displayIfPerms(sender, AdvancedBanItem.AddBlockPermission, logger, AddBlockCommand.descriptor);
+        //displayIfPerms(sender, AdvancedBanItem.RemoveBlockPermission, logger, RemoveBlockCommand.descriptor);
+        //displayIfPerms(sender, AdvancedBanItem.EditBlockPermission, logger, EditBlockLimitCommands.descriptor);
         displayIfPerms(sender, AdvancedBanItem.DisplayLimiterPermission, logger, DisplayLimiterCommand.descriptor);
         displayIfPerms(sender, AdvancedBanItem.DisplayLimiterPermission, logger, ListAllLimitsCommand.descriptor);
         displayIfPerms(sender, AdvancedBanItem.ReloadConfigPermission, logger, ReloadConfigCommand.descriptor);

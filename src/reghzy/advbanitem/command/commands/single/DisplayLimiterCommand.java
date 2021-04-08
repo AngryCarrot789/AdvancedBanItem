@@ -7,12 +7,16 @@ import reghzy.advbanitem.command.CommandDescriptor;
 import reghzy.advbanitem.command.ExecutableCommand;
 import reghzy.advbanitem.command.helpers.ArgsParser;
 import reghzy.advbanitem.command.helpers.ParsedValue;
+import reghzy.advbanitem.helpers.StringHelper;
+import reghzy.advbanitem.limit.MetaLimit;
+import reghzy.advbanitem.limit.WorldLookup;
 import reghzy.advbanitem.permissions.PermissionsHelper;
 import reghzy.advbanitem.limit.BlockLimiter;
-import reghzy.advbanitem.limit.WorldLookup;
+import reghzy.advbanitem.limit.OldWorldLookup;
 import reghzy.advbanitem.logs.ChatLogger;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class DisplayLimiterCommand implements ExecutableCommand {
     public static final CommandDescriptor descriptor =
@@ -43,52 +47,40 @@ public class DisplayLimiterCommand implements ExecutableCommand {
         logger.logInfo("ID: " + ChatColor.DARK_AQUA + limiter.id);
         StringBuilder metadataString = new StringBuilder(32);
         int in = 0, countIndex = limiter.metadata.size() - 1;
-        if (countIndex < 0)
+        if (countIndex < 0) {
             metadataString.append("(no metadata)");
+        }
         else {
-            for (Integer data : limiter.metadata) {
+            for (MetaLimit pair : limiter.metadata.values()) {
                 if (in == countIndex) {
-                    metadataString.append(data);
+                    metadataString.append(pair.toString());
                 }
                 else {
-                    metadataString.append(data).append(", ");
+                    metadataString.append(pair.toString()).append('\n').append(ChatColor.DARK_AQUA).append("---------------------------------------------\n").append(ChatColor.GOLD);
                     in++;
                 }
             }
         }
-        logger.logInfo("Data: " + ChatColor.DARK_AQUA + metadataString.toString());
-
-        StringBuilder worldConcat = new StringBuilder(128);
-        ArrayList<Integer> worldHashes = WorldLookup.getWorldsFromId(limiter.id);
-        if (worldHashes == null || worldHashes.size() == 0) {
-            logger.logInfo("Disallowed Worlds: " + ChatColor.RED + "There are no worlds");
+        logger.logInfo("MetaData Limits:\n" + ChatColor.GOLD + metadataString.toString());
+        if (limiter.defaultDisallowedWorlds.size() == 0) {
+            logger.logInfo("Default Disallowed Worlds: " + ChatColor.RED + "There are none");
         }
         else {
-            logger.logInfo("Disallowed Worlds: ");
-            worldConcat.append(ChatColor.DARK_AQUA.toString());
-            for (int i = 0, size = worldHashes.size(), lastIndex = size - 1; i < size; i++) {
-                String name = WorldLookup.getNameFromHash(worldHashes.get(i));
-                name = (name == null) ? "[Unknown]" : name;
-                if (i == lastIndex)
-                    worldConcat.append(name);
-                else
-                    worldConcat.append(name).append(", ");
-            }
-            logger.logInfo(worldConcat.toString());
+            logger.logInfo("Default Disallowed Worlds: " + ChatColor.DARK_AQUA + StringHelper.joinArray(limiter.defaultDisallowedWorlds.toArray(new String[0]), 0, ", "));
         }
-        logger.logInfo("Place permission: " + ChatColor.DARK_AQUA + nullPermissionCheck(limiter.placePermission));
-        logger.logInfo("Break permission: " + ChatColor.DARK_AQUA + nullPermissionCheck(limiter.breakPermission));
-        logger.logInfo("Interact permission: " + ChatColor.DARK_AQUA + nullPermissionCheck(limiter.interactPermission));
-        logger.logInfo("No Place Message: " + ChatColor.DARK_AQUA + limiter.noPlaceMessage);
-        logger.logInfo("No Break Message: " + ChatColor.DARK_AQUA + limiter.noBreakMessage);
-        logger.logInfo("No Interact Message: " + ChatColor.DARK_AQUA + limiter.noInteractMessage);
-        logger.logInfo("Invert Worlds: " + ChatColor.DARK_AQUA + limiter.invertWorld);
-        logger.logInfo("Invert Perms: " + ChatColor.DARK_AQUA + limiter.invertPermission);
+        logger.logInfo("Default Place Permission: " + ChatColor.DARK_AQUA + nullPermissionCheck(limiter.defaultPlacePermission));
+        logger.logInfo("Default Break Permission: " + ChatColor.DARK_AQUA + nullPermissionCheck(limiter.defaultBreakPermission));
+        logger.logInfo("Default Interact Permission: " + ChatColor.DARK_AQUA + nullPermissionCheck(limiter.defaultInteractPermission));
+        logger.logInfo("Default Place Message: " + ChatColor.DARK_AQUA + limiter.defaultNoPlaceMessage);
+        logger.logInfo("Default Break Message: " + ChatColor.DARK_AQUA + limiter.defaultNoBreakMessage);
+        logger.logInfo("Default Interact Message: " + ChatColor.DARK_AQUA + limiter.defaultNoInteractMessage);
+        logger.logInfo("Default Invert Worlds: " + ChatColor.DARK_AQUA + limiter.defaultInvertWorld);
+        logger.logInfo("Default Invert Perms: " + ChatColor.DARK_AQUA + limiter.defaultInvertPermission);
     }
 
-    private static String nullPermissionCheck(String permission) {
+    public static String nullPermissionCheck(String permission) {
         if (permission == null)
-            return "&4[No permission]";
+            return ChatColor.RED + "(There is no permission)";
         return permission;
     }
 }

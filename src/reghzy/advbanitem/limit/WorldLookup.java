@@ -4,136 +4,98 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-/**
- * A class used for holding a map of block IDs which key
- * to a list of hash codes of disallowed world names.
- * <p>
- *     Basically, that
- * </p>
- */
 public class WorldLookup {
-    // Key: BlockID
-    // Value: A list of disallowed world name hash codes
-    // this is pretty much a multimap, but craftbukkit's multimap looks
-    // a bit slow to im doin the manual solution ;))
+    // Key:   the hashcode of the item ID and Metadata (use getBlockHash())
+    // Value: an array of disallowed world name hashes
     private static final HashMap<Integer, ArrayList<Integer>> blockWorldHashes;
-    private static final HashMap<Integer, String> hashesToNames;
+    // Key:   the hashcode of the world name
+    // value: the actual world name string
+    private static final HashMap<Integer, String> hashesToName;
 
-    public static void addBlockDisallowedWorld(Integer id, String worldName) {
+    public static void addDisallowed(int id, int meta, String worldName) {
+        int blockHash = getBlockHash(id, meta);
         int worldHash = worldName.hashCode();
-        ArrayList<Integer> worldNamesHashes = blockWorldHashes.get(id);
-        if (worldNamesHashes == null) {
-            worldNamesHashes = new ArrayList<Integer>();
-            blockWorldHashes.put(id, worldNamesHashes);
+        ArrayList<Integer> disallowedWorlds = blockWorldHashes.get(blockHash);
+        if (disallowedWorlds == null) {
+            disallowedWorlds = new ArrayList<Integer>(4);
+            blockWorldHashes.put(id, disallowedWorlds);
         }
-        worldNamesHashes.add(worldHash);
-        hashesToNames.put(worldHash, worldName);
+        disallowedWorlds.add(worldHash);
+        hashesToName.put(worldHash, worldName);
     }
 
-    /**
-     * Adds a disallowed world to the list, for the given block id
-     */
-    public static void addBlockDisallowedWorlds(Integer id, List<String> worlds) {
-        ArrayList<Integer> disallowedWorlds = blockWorldHashes.get(id);
+    public static void addDisallowed(int id, int meta, List<String> worlds) {
+        int blockHash = getBlockHash(id, meta);
+        ArrayList<Integer> disallowedWorlds = blockWorldHashes.get(blockHash);
         if (disallowedWorlds == null) {
             disallowedWorlds = new ArrayList<Integer>(worlds.size());
-            blockWorldHashes.put(id, disallowedWorlds);
+            blockWorldHashes.put(blockHash, disallowedWorlds);
         }
         for (String worldName : worlds) {
-            int hash = worldName.hashCode();
-            disallowedWorlds.add(hash);
-            hashesToNames.put(hash, worldName);
+            int worldHash = worldName.hashCode();
+            disallowedWorlds.add(worldHash);
+            hashesToName.put(worldHash, worldName);
         }
     }
 
-    /**
-     * Adds a disallowed world to the list, for the given block id
-     */
-    public static void addBlockDisallowedWorldHashes(Integer id, List<Integer> worlds) {
-        ArrayList<Integer> disallowedWorlds = blockWorldHashes.get(id);
+    public static void addDisallowedHashes(int id, int meta, List<Integer> worlds) {
+        int blockHash = getBlockHash(id, meta);
+        ArrayList<Integer> disallowedWorlds = blockWorldHashes.get(blockHash);
         if (disallowedWorlds == null) {
             disallowedWorlds = new ArrayList<Integer>(worlds.size());
-            blockWorldHashes.put(id, disallowedWorlds);
+            blockWorldHashes.put(blockHash, disallowedWorlds);
         }
         disallowedWorlds.addAll(worlds);
     }
 
-    /**
-     * Removes a disallowed world from the list, for the given block id
-     */
-    public static void removeBlockDisallowedWorld(Integer blockId, String worldName) {
-        removeBlockDisallowedWorld(blockId, worldName.hashCode());
+    public static void removeDisallowed(int id, int meta) {
+        int hash = getBlockHash(id, meta);
+        blockWorldHashes.remove(hash);
     }
 
-    /**
-     * Removes a disallowed world from the list, for the given block id
-     */
-    public static void removeBlockDisallowedWorld(Integer blockId, Integer worldNameHash) {
-        ArrayList<Integer> disallowedWorlds = blockWorldHashes.get(blockId);
+    public static void removeDisallowed(int id, int meta, String world) {
+        removeDisallowed(id, meta, world.hashCode());
+    }
+
+    public static void removeDisallowed(int id, int meta, int worldHash) {
+        int hash = getBlockHash(id, meta);
+        ArrayList<Integer> disallowedWorlds = blockWorldHashes.get(hash);
         if (disallowedWorlds == null) {
             return;
         }
-        disallowedWorlds.remove(worldNameHash);
+        disallowedWorlds.remove(worldHash);
     }
 
-    public static ArrayList<Integer> removeBlockDisallowedWorld(Integer id) {
-        return blockWorldHashes.remove(id);
+    public static boolean containsWorld(int id, int meta, String world) {
+        return containsWorld(id, meta, world.hashCode());
     }
 
-    /**
-     * Returns true if the given block id contains any disallowed worlds, and if that
-     * list contains the given hashcode for a disallowed world name
-     */
-    public static boolean containsDisallowedWorld(Integer blockId, Integer worldNameHash) {
-        ArrayList<Integer> disallowedWorlds = blockWorldHashes.get(blockId);
+    public static boolean containsWorld(int id, int meta, int worldHash) {
+        int hash = getBlockHash(id, meta);
+        ArrayList<Integer> disallowedWorlds = blockWorldHashes.get(hash);
         if (disallowedWorlds == null || disallowedWorlds.size() == 0) {
             return false;
         }
-        return disallowedWorlds.contains(worldNameHash);
+        return disallowedWorlds.contains(worldHash);
     }
 
-    /**
-     * Returns true if the given block id contains any disallowed worlds, and if that
-     * list contains the given world (this will call the world's hashcode function)
-     */
-    public static boolean containsDisallowedWorld(Integer blockId, String worldName) {
-        return containsDisallowedWorld(blockId, worldName.hashCode());
-    }
-
-    public static ArrayList<Integer> getWorldsFromId(Integer id) {
-        return blockWorldHashes.get(id);
-    }
-
-    public static ArrayList<String> getWorldNamesFromId(Integer id) {
-        ArrayList<Integer> worldHashes = getWorldsFromId(id);
-        if (worldHashes == null)
-            return null;
-        ArrayList<String> names = new ArrayList<String>(worldHashes.size());
-        for(Integer hash : worldHashes) {
-            String name = getNameFromHash(hash);
-            if (name != null)
-                names.add(name);
-        }
-        return names;
-    }
-
-    public static String getNameFromHash(int hash) {
-        return hashesToNames.get(hash);
-    }
-
-    /**
-     * Clears the list containing all of the block ids, and all of the disallowed
-     * worlds linked to that block id
-     */
-    public static void clearBlockWorlds() {
-        for(ArrayList<Integer> worldNameHashes : blockWorldHashes.values()) {
+    public static void clearDisallowedWorlds() {
+        for (ArrayList<Integer> worldNameHashes : blockWorldHashes.values()) {
             worldNameHashes.clear();
         }
         blockWorldHashes.clear();
     }
 
+    public static String getWorldFromHash(int hash) {
+        return hashesToName.get(hash);
+    }
+
+    public static int getBlockHash(int id, int meta) {
+        return id + (meta << 16);
+    }
+
     static {
-        blockWorldHashes = new HashMap<Integer, ArrayList<Integer>>(32);
-        hashesToNames = new HashMap<Integer, String>(32);
+        blockWorldHashes = new HashMap<Integer, ArrayList<Integer>>(128);
+        hashesToName = new HashMap<Integer, String>(128);
     }
 }

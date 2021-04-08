@@ -1,5 +1,7 @@
 package reghzy.advbanitem.helpers;
 
+import com.sun.xml.internal.ws.client.SenderException;
+
 public class StringHelper {
     public boolean isEmpty(String string) {
         return string == null || string.isEmpty();
@@ -36,8 +38,29 @@ public class StringHelper {
             return null;
 
         StringBuilder string = new StringBuilder(args.length);
-        for(int i = offset; i < args.length; i++) {
-            string.append(args[i]).append(joinCharacter);
+        for (int i = offset, lenIndex = args.length - 1; i < args.length; i++) {
+            if (i == lenIndex) {
+                string.append(args[i]);
+            }
+            else {
+                string.append(args[i]).append(joinCharacter);
+            }
+        }
+        return string.toString();
+    }
+
+    public static String joinArray(String[] args, int offset, String joinText) {
+        if ((args == null) || (offset < 0) || (offset >= args.length))
+            return null;
+
+        StringBuilder string = new StringBuilder(args.length);
+        for (int i = offset, lenIndex = args.length - 1; i < args.length; i++) {
+            if (i == lenIndex) {
+                string.append(args[i]);
+            }
+            else {
+                string.append(args[i]).append(joinText);
+            }
         }
         return string.toString();
     }

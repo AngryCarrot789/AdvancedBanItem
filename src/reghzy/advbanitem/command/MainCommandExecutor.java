@@ -21,9 +21,10 @@ public class MainCommandExecutor implements CommandExecutor {
         commandMap = new HashMap<String, ExecutableCommand>();
         commandMap.put("help", new HelpCommand());
         commandMap.put("look", new LookBlockInfoCommand());
-        commandMap.put("add", new AddBlockCommand());
-        commandMap.put("remove", new RemoveBlockCommand());
-        commandMap.put("edit", new EditBlockLimitCommands());
+        commandMap.put("hand", new HandItemInfoCommand());
+        //commandMap.put("add", new AddBlockCommand());
+        //commandMap.put("remove", new RemoveBlockCommand());
+        //commandMap.put("edit", new EditBlockLimitCommands());
         commandMap.put("display", new DisplayLimiterCommand());
         commandMap.put("list", new ListAllLimitsCommand());
         commandMap.put("reload", new ReloadConfigCommand());

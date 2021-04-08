@@ -7,13 +7,8 @@ import org.bukkit.entity.Player;
 import reghzy.advbanitem.AdvancedBanItem;
 import reghzy.advbanitem.config.Config;
 import reghzy.advbanitem.permissions.PermissionsHelper;
-import reghzy.advbanitem.logs.ChatFormat;
-import reghzy.advbanitem.logs.ChatLogger;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 
 public class LimitManager {
     private final HashMap<Integer, BlockLimiter> blockLimiters;
@@ -30,54 +25,29 @@ public class LimitManager {
 
     public LimitManager(Config config) {
         this.config = config;
-        blockLimiters = new HashMap<Integer, BlockLimiter>(16);
+        blockLimiters = new HashMap<Integer, BlockLimiter>(32);
     }
 
     public void loadLimits() {
-        WorldLookup.clearBlockWorlds();
+        WorldLookup.clearDisallowedWorlds();
         blockLimiters.clear();
 
         for(String key : this.config.getKeys(false)) {
             try {
                 int id = Integer.parseInt(key);
                 ConfigurationSection limitSection = this.config.getConfigurationSection(key);
-
-                List<String> metadataStrings = limitSection.getStringList(BlockLimiter.MetaDataName);
-                HashSet<Integer> metadata;
-                if (metadataStrings == null || metadataStrings.size() == 0) {
-                    metadata = new HashSet<Integer>(1);
-                    metadata.add(-1);
+                if (limitSection == null) {
+                    AdvancedBanItem.getInstance().getChatLogger().logPlugin("ID " + key + " had nothing in it");
                 }
                 else {
-                    metadata = new HashSet<Integer>(metadataStrings.size());
-                    for (String metadataString : metadataStrings) {
-                        try {
-                            Integer data = Integer.parseInt(metadataString);
-                            metadata.add(data);
-                        }
-                        catch (Exception e) {
-                            AdvancedBanItem.getInstance().getChatLogger().logPlugin(
-                                    "Failed to parse integer for metadata list: " + ChatFormat.apostrophise(metadataString) +
-                                    "for ID: " + ChatFormat.apostrophise(key));
-                        }
+                    try {
+                        addLimiter(id, BlockLimiter.createFromConfigSection(limitSection, id));
+                    }
+                    catch (Exception e) {
+                        AdvancedBanItem.getInstance().getChatLogger().logPlugin("Failed to create a limit from the config");
+                        e.printStackTrace();
                     }
                 }
-
-                addLimiter(
-                        id,
-                        new BlockLimiter(
-                                id,
-                                metadata,
-                                limitSection.getBoolean(BlockLimiter.InvertMetadataName),
-                                limitSection.getBoolean(BlockLimiter.InvertPermissionsName),
-                                limitSection.getBoolean(BlockLimiter.InvertWorldName),
-                                limitSection.getStringList(BlockLimiter.DisallowedWorldsName),
-                                limitSection.getString(BlockLimiter.PlacePermissionName),
-                                limitSection.getString(BlockLimiter.BreakPermissionName),
-                                limitSection.getString(BlockLimiter.InteractPermissionName),
-                                limitSection.getString(BlockLimiter.NoPlaceMessageName),
-                                limitSection.getString(BlockLimiter.NoBreakMessageName),
-                                limitSection.getString(BlockLimiter.NoInteractMessageName)));
             }
             catch (Exception e) {
                 AdvancedBanItem.getInstance().getChatLogger().logPlugin("Failed to load block limiter. Block ID: " + key);
@@ -102,43 +72,24 @@ public class LimitManager {
         return blockLimiters.get(id);
     }
 
-    public void saveDataToConfig() {
-        Config config = this.config;
+    //public void saveDataToConfig() {
+    //    Config config = this.config;
+    //    for(BlockLimiter limiter : this.blockLimiters.values()) {
+    //        ConfigurationSection limitedIdSection = config.getConfigurationSection(String.valueOf(limiter.id));
+    //        if (limitedIdSection == null) {
+    //            limitedIdSection = config.createSection(String.valueOf(limiter.id));
+    //        }
+    //        limiter.saveToConfigSection(limitedIdSection);
+    //    }
+    //    if (config.trySaveYaml()) {
+    //        ChatLogger.logConsole("Saved 'limits.yml' config");
+    //    }
+    //    else {
+    //        ChatLogger.logConsole("Failed to save 'limits.yml' config");
+    //    }
+    //}
 
-        for(BlockLimiter limiter : this.blockLimiters.values()) {
-            ConfigurationSection section = config.getConfigurationSection(String.valueOf(limiter.id));
-            if (section == null) {
-                section = config.createSection(String.valueOf(limiter.id));
-            }
-
-            ArrayList<String> worldNames = WorldLookup.getWorldNamesFromId(limiter.id);
-            if (worldNames == null)
-                worldNames = new ArrayList<String>(0);
-            List<String> metadata = new ArrayList<String>(limiter.metadata.size());
-            for(Integer data : limiter.metadata) {
-                metadata.add(data.toString());
-            }
-            section.set(BlockLimiter.MetaDataName, metadata);
-            section.set(BlockLimiter.InvertPermissionsName, limiter.invertPermission);
-            section.set(BlockLimiter.InvertWorldName, limiter.invertWorld);
-            section.set(BlockLimiter.DisallowedWorldsName, worldNames);
-            section.set(BlockLimiter.PlacePermissionName, limiter.placePermission);
-            section.set(BlockLimiter.BreakPermissionName, limiter.breakPermission);
-            section.set(BlockLimiter.InteractPermissionName, limiter.interactPermission);
-            section.set(BlockLimiter.NoPlaceMessageName, limiter.noPlaceMessage);
-            section.set(BlockLimiter.NoBreakMessageName, limiter.noBreakMessage);
-            section.set(BlockLimiter.NoInteractMessageName, limiter.noInteractMessage);
-        }
-
-        if (config.trySaveYaml()) {
-            ChatLogger.logConsole("Saved 'limits.yml' config");
-        }
-        else {
-            ChatLogger.logConsole("Failed to save 'limits.yml' config");
-        }
-    }
-
-    public void reloadInfoFromConfig(Config config) {
+    public void loadInfoFromMainConfig(Config config) {
         this.allowWorldBypass = config.getBoolean(LimitManager.AllowWorldBypassName);
         this.allowPermsBypass = config.getBoolean(LimitManager.AllowPermsBypassName);
         this.worldBypassPermission = config.getString(LimitManager.WorldBypassName);
@@ -158,14 +109,16 @@ public class LimitManager {
         BlockLimiter limiter = blockLimiters.get(block.getType().getId());
         if (limiter == null)
             return false;
-        if (limiter.hasMetadata(block.getData())) {
-            if (limiter.canBreak(player))
-                return false;
 
-            sendDenyMessage(player, limiter.noBreakMessage, limiter);
-            return true;
-        }
-        return false;
+        MetaLimit meta = limiter.getMetaMessage(block.getData());
+        if (meta == null)
+            return false;
+
+        if (meta.canBreak(player))
+            return false;
+
+        sendDenyMessage(player, meta.noBreakMessage, meta);
+        return true;
     }
 
     // returns true if the event should be cancelled
@@ -177,14 +130,15 @@ public class LimitManager {
         if (limiter == null)
             return false;
 
-        if (limiter.hasMetadata(block.getData())) {
-            if (limiter.canPlace(player))
-                return false;
+        MetaLimit meta = limiter.getMetaMessage(block.getData());
+        if (meta == null)
+            return false;
 
-            sendDenyMessage(player, limiter.noPlaceMessage, limiter);
-            return true;
-        }
-        return false;
+        if (meta.canPlace(player))
+            return false;
+
+        sendDenyMessage(player, meta.noPlaceMessage, meta);
+        return true;
     }
 
     // returns true if the event should be cancelled
@@ -201,36 +155,37 @@ public class LimitManager {
         if (limiter == null)
             return false;
 
-        if (limiter.hasMetadata(data)) {
-            if (limiter.canInteract(player))
-                return false;
+        MetaLimit meta = limiter.getMetaMessage(data);
+        if (meta == null)
+            return false;
 
-            sendDenyMessage(player, limiter.noInteractMessage, limiter);
-            return true;
-        }
-        return false;
+        if (meta.canInteract(player))
+            return false;
+
+        sendDenyMessage(player, meta.noInteractMessage, meta);
+        return true;
     }
 
     public boolean playerBypassesChecks(Player player) {
-        if (allowWorldBypass && PermissionsHelper.hasPermission(player, worldBypassPermission))
+        if (allowPermsBypass && PermissionsHelper.hasPermission(player, permsBypassPermission))
             return true;
-        return allowPermsBypass && PermissionsHelper.hasPermission(player, permsBypassPermission);
+        return allowWorldBypass && PermissionsHelper.hasPermission(player, worldBypassPermission);
     }
 
     public int limitsCount() {
         return this.blockLimiters.size();
     }
 
-    public static void sendDenyMessage(Player player, String message, BlockLimiter limiter) {
-        player.sendMessage(AdvancedBanItem.getInstance().getChatPrefix() + " " + translateWildcards(message, limiter, player));
+    public static void sendDenyMessage(Player player, String message, MetaLimit metaUsedForInformation) {
+        player.sendMessage(AdvancedBanItem.getInstance().getChatPrefix() + " " + translateWildcards(message, metaUsedForInformation, player));
     }
 
-    public static String translateWildcards(String message, BlockLimiter limiter, Player player) {
+    public static String translateWildcards(String message, MetaLimit meta, Player player) {
         StringBuilder newMessage = new StringBuilder(message.length() * 4);
         for(int i = 0; i < message.length(); i++) {
             char c = message.charAt(i);
             if (c == '%') {
-                newMessage.append(getLimiterWildcard(message.charAt(++i), limiter, player));
+                newMessage.append(getLimiterWildcard(message.charAt(++i), meta, player));
             }
             else if (c == '&') {
                 newMessage.append((char) 167).append(message.charAt(++i));
@@ -242,13 +197,13 @@ public class LimitManager {
         return newMessage.toString();
     }
 
-    public static String getLimiterWildcard(char wildcard, BlockLimiter limiter, Player player) {
+    public static String getLimiterWildcard(char wildcard, MetaLimit meta, Player player) {
         if (wildcard == 'p')
-            return nullCheckPermission(limiter.placePermission);
+            return nullCheckPermission(meta.placePermission);
         if (wildcard == 'b')
-            return nullCheckPermission(limiter.breakPermission);
+            return nullCheckPermission(meta.breakPermission);
         if (wildcard == 'i')
-            return nullCheckPermission(limiter.interactPermission);
+            return nullCheckPermission(meta.interactPermission);
         if (wildcard == 'u')
             return player.getName();
         if (wildcard == 'w') {

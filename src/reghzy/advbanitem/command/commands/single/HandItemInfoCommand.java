@@ -1,24 +1,21 @@
 package reghzy.advbanitem.command.commands.single;
 
 import org.bukkit.ChatColor;
-import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import reghzy.advbanitem.AdvancedBanItem;
 import reghzy.advbanitem.command.CommandDescriptor;
 import reghzy.advbanitem.command.ExecutableCommand;
-import reghzy.advbanitem.command.helpers.ArgsParser;
-import reghzy.advbanitem.command.helpers.ParsedValue;
-import reghzy.advbanitem.permissions.PermissionsHelper;
 import reghzy.advbanitem.logs.ChatLogger;
+import reghzy.advbanitem.permissions.PermissionsHelper;
 
-public class LookBlockInfoCommand implements ExecutableCommand {
-    public static final int DefaultDistance = 100;
+public class HandItemInfoCommand implements ExecutableCommand {
     public static final CommandDescriptor descriptor =
             new CommandDescriptor(
-                    "look",
-                    "[distance]",
-                    "Gets the ID and Data of the block you're looking at");
+                    "hand",
+                    "",
+                    "Gets the ID and Data of the item in your item");
 
     @Override
     public void execute(CommandSender sender, ChatLogger logger, String[] args) {
@@ -31,19 +28,14 @@ public class LookBlockInfoCommand implements ExecutableCommand {
             return;
         }
 
-        ParsedValue<Integer> distance = ArgsParser.parseInteger(args, 0);
-        if (distance.failed) {
-            distance.value = DefaultDistance;
-        }
-
         Player player = (Player) sender;
-        Block block = player.getTargetBlock(null, distance.value);
-        if (block.isEmpty()) {
-            logger.logInfo("You're not looking at anything, just air. Add a distant on the end of the command to look further");
+        ItemStack block = player.getItemInHand();
+        if (block == null) {
+            logger.logInfoPrefix("You're not holding anything :/");
         }
         else {
-            logger.logInfo("Block ID: " + ChatColor.GREEN + block.getType().getId() + ChatColor.GOLD +
-                           ", Block Data: " + ChatColor.LIGHT_PURPLE + block.getData() + ChatColor.GOLD + ". " +
+            logger.logInfo("ID: " + ChatColor.GREEN + block.getType().getId() + ChatColor.GOLD +
+                           ", Data: " + ChatColor.LIGHT_PURPLE + block.getData().getData() + ChatColor.GOLD + ". " +
                            ChatColor.GREEN + block.getType().getId() + ":" + block.getData());
         }
     }

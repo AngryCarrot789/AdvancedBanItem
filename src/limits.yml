@@ -1,139 +1,151 @@
-# # the ID of the block that was placed or broken
-# # the order in which the data is processed:
-# # event -> check ID -> check block data -> check player doesn't bypass world -> same with perms ->  check world -> check permissions
-# # (if they do bypass, the world and permission after aren't checked)
+#           # # the ID of the block that was placed or broken
+#           # # the order in which the data is processed:
+#           # # event -> check ID -> check block data -> check player doesn't bypass world -> same with perms ->  check world -> check permissions
+#           # # (if they do bypass, the world and permission after aren't checked)
+#           12:
+#             # the metadata that will be checked when breaking or placing a block.
+#             # If the block broken/placed/interacted with is equal to any of the metadata below,
+#             # it goes onto the next checks (permissions and stuff)
+#             # -1 means its ignored, aka dont care about metadata, just continue onto checking permissions
+#             #
+#             # be aware with the metadata though. ItemStack metadata (aka items in your hand) and Block metadata (placed in a world)
+#             # could be different. this is visible with spawners: a placed cow spawner might have ID 52 data 12, but the
+#             # itemstack version in your hand might have the ID 52 data 92. use /abi hand for the data in your hand,
+#             # and /abi look for the data of the block you're looking at
+#             MetaData:
+#               # you supply a block's metadata here
+#               -1:
+#                 DisallowedWorlds:
+#                   - 'world'
+#
+#                 # Inverts the worlds, meaning "Disallowed" becomes "Allowed".
+#                 # 'mining-world' isn't allowed but all others are, but if InvertWorlds is true,
+#                 # only 'mining-world' is allowed, all others aren't allowed
+#                 InvertWorlds: false
+#
+#                 # these permissions can be whatever you want, they could all be the same,
+#                 # or all different names, etc
+#
+#                 # now if the block passes the test in the worlds above... permissions time
+#                 # with these... leave it empty to allow it to always be placed/broken/interacted with
+#                 # otherwise, give the specified permission required to be broken.
+#                 # the permission required to place the block
+#                 # this means someone must have the advbanitem.place.sand to place sand blocks
+#                 PlacePermission: 'advbanitem.perms.limit.place.sand'
+#
+#                 # same as above, but with breaking the block,
+#                 # the permission required to break the block
+#                 # this means someone must have the advbanitem.break.sand to break sand blocks
+#                 BreakPermission: 'advbanitem.perms.limit.break.sand'
+#
+#                 # same above, but with interacting with it (right clicking / left clicking)
+#                 # the permission required to interact with the block (right click and left click)
+#                 # this means that someone must have advbanitem.interact.sand to be able to right click or left click on sand
+#                 # if they dont have the permission, they CAN NOT right/left click on sand
+#                 # be aware though... interaction events are called first, then block break/place next
+#                 # this isn't something a plugin can change, its a bukkit thing. so the player kinda needs interaction
+#                 # perms just to be able to place and/or break
+#                 InteractPermission: 'advbanitem.perms.limit.interact.sand'
+#
+#                 # inverts the limit's permissions
+#                 # if this is false, it means the above comments are the same. meaning,
+#                 # they require the permissions above to be able to place/break the block
+#                 #
+#                 # if this is true, it means someone with the permissions CAN NOT place/break the block
+#                 # and it means someone without the permission CAN place the blocks,
+#                 # meaning they CAN NOT interact with blocks even if they have the permission
+#                 # and it also means if the permission is empty, it means they CAN NOT place/break the block
+#                 # because an empty permission means the block isn't disabled, but with permission activates the limit
+#                 # basically, if this is true, the permission stops players placing/breaking/interacting
+#                 # whereas if it was false, the permission allows the players to placing/breaking/interact
+#                 InvertPermissions: false
+#
+#                 # here is where you define the messages to be sent to a player when they try to place/break/interact
+#                 # with a block with the same ID and metadata. this allows you to have different messages for
+#                 # different metadatas, instead of different messages for a single ID.
+#                 # if you dont supply a message, a default message will be used internally
+#                 # There are wildcards you can use in these messages (to get extra info). the available wildcards are:
+#                 #   (these 3 below are kinda useless you could just specify them yourself... but oh well)
+#                 #   %p - the place permission string
+#                 #   %b - the break permission string
+#                 #   %i - the interact permission string
+#                 #   %u - the player's username
+#                 #   %w - the name of the world the player is in
+#                 # Colours are also supported using the & symbol (i haven't tested the other character but that should work too)
+#                 # just make sure the value after the & is a valid colour code... because it'll show if it's not
+#                 # checking if the value is valid is skipped to increase performance (i mean a few extra microseconds isn't much... but eh)
+#                 # available colour codes are: 0123456789abcdefklmnor
+#                 # a list of worlds that this block is NOT allowed to be
+#                 # placed/broken/interacted. leave this empty to allow all worlds
+#                 # this is processed BEFORE permissions, so if the world isn't allowed,
+#                 # but the player has permissions, they can't place/break/etc it.
+#                 #NoPlaceMessage: '&6SAND!!! No placing!!'
+#                 #NoBreakMessage: '&6SAND!!! No breaking!!'
+#                 #NoInteractMessage: '&6SAND!!! No Interacting!!'
+#
+#             # if you dont supply the values above (permissions, messages, worlds, etc),
+#             # they will fall back to these values below, called "default" values.
+#             # this means, every single limited metadata above will have the default values below, unless you
+#             # supply the values above. even if you use a few, it will fill in the rest.
+#             # if there's nothing below, the messages will fall back to the ones in config.yml, disallowed worlds will be empty,
+#             # invert worlds and permissions will be false, the permissions will be empty so there wont be a limit; anyone can place them
+#             #DefaultDisallowedWorlds:
+#             #  - 'world'
+#             #DefaultInvertWorlds: false
+#             DefaultInvertPermissions: false
+#             DefaultPlacePermission: 'advbanitem.limits.place.sand'
+#             DefaultBreakPermission: 'advbanitem.limits.break.sand'
+#             DefaultInteractPermission: 'advbanitem.limits.interact.sand'
+#             # These messages are used as default messages if you dont supply messages for the metadata.
+#             # you dont have to specify these. if you dont, it will automatically use the messages in config.yml
+#             #DefaultPlaceMessage: '&4You dont have permission to place this block!'
+#             DefaultBreakMessage: '&4You dont have permission to break sand!'
+#             #DefaultInteractMessage: '&4You dont have permission to interact with this block!'
+
+# also, normally if you dont supply an interaction permission, interaction is fully enabled; no limiting.
+# but if a block is banned in a world, it is limited even if there's no permissions.
+# this is useful for banning blocks in other worlds, meaning you dont need to invert permissions to disable
+# an item in a world, you can simply just limit the world and obviously maybe give a custom interaction message
+# because interaction events fire before you break and place blocks
+
+# the variable names for easy access:
+#
+# MetaData (sections of IDs might contain the stuff below)
+#   DisallowedWorlds
+#   InvertPermissions
+#   InvertWorlds
+#   PlacePermission
+#   BreakPermission
+#   InteractPermission
+#   NoPlaceMessage
+#   NoBreakMessage
+#   NoInteractMessage
+# (below are default values that are applied if the values above are missing)
+# DefaultDisallowedWorlds
+# DefaultInvertPermissions
+# DefaultInvertWorlds
+# DefaultPlacePermission
+# DefaultBreakPermission
+# DefaultInteractPermission
+# DefaultPlaceMessage
+# DefaultBreakMessage
+# DefaultInteractMessage
+
 12:
-  # the metadata that will be checked when breaking or placing a block.
-  # If the block broken/placed/interacted with is equal to any of the metadata below,
-  # it goes onto the next checks (permissions and stuff)
-  # -1 means its ignored, aka dont care about metadata, just continue onto checking permissions
   MetaData:
-    - '12'
-    - '13'
+    -1:
+      DisallowedWorlds:
+        - 'world'
+      InvertWorlds: false
+      PlacePermission: 'advbanitem.perms.limit.place.sand'
+      InvertPermissions: false
+      NoPlaceMessage: '&6SAND!!! No placing!!'
+      NoBreakMessage: '&6SAND!!! No breaking!!'
+      NoInteractMessage: '&6SAND!!! No Interacting!!'
+  DefaultInvertPermissions: false
+  DefaultBreakPermission: 'advbanitem.limits.break.sand'
+  DefaultInteractPermission: 'advbanitem.limits.interact.sand'
+  DefaultPlaceMessage: '&4cant place sand'
+  DefaultBreakMessage: '&4cant break sand'
+  DefaultInteractMessage: '&4cant interact with sand'
 
-  # Inverting metadata inverts the above, meaning when a block is placed/broken/interacted with, if that blocks
-  # metadata is equal to one of the metadatas above (aka if the above contains the blocks metadata), then that
-  # block isn't processed; it's ignored. if the block's metadata isn't in the list above, then it IS processed and
-  # goes onto the permissions.
-  # basically, when invert == false, if the list above doesn't contain the broken/placed/interacted block's metadata,
-  # stop processing it and dont do anything else. if it did contain it, continue to process permission.
-  # but if invert == true, if the list above doesn't contain the broken/placed/interacted block's metadata,
-  # continue processing to permissions and stuff. if it did contain that blocks metadata, stop processing and dont do anything else
-  # ^^^ is the logic behind it
-  InvertMetaData: false
-
-  # a list of worlds that this block is NOT allowed to be
-  # placed/broken/interacted. leave this empty to allow all worlds
-  # this is processed BEFORE permissions, so if the world isn't allowed,
-  # but the player has permissions, they can't place/break/etc it.
-  DisallowedWorlds:
-    - 'sand-world'
-
-  # Inverts the worlds, meaning "Disallowed" becomes "Allowed".
-  # 'mining-world' isn't allowed but all others are, but if InvertWorlds is true,
-  # only 'mining-world' is allowed, all others aren't allowed
-  InvertWorlds: true
-
-  # these permissions can be whatever you want, they could all be the same,
-  # or all different names, etc
-
-  # now if the block passes the test in the worlds above... permissions time
-  # with these... leave it empty to allow it to always be placed/broken/interacted with
-  # otherwise, give the specified permission required to be broken.
-  # the permission required to place the block
-  # this means someone must have the advbanitem.place.sand to place sand blocks
-  PlacePermission: 'advbanitem.perms.limit.place.sand'
-
-  # same as above, but with breaking the block,
-  # the permission required to break the block
-  # this means someone must have the advbanitem.break.sand to break sand blocks
-  BreakPermission: 'advbanitem.perms.limit.break.sand'
-
-  # same above, but with interacting with it (right clicking / left clicking)
-  # the permission required to interact with the block (right click and left click)
-  # this means that someone must have advbanitem.interact.sand to be able to right click or left click on sand
-  # if they dont have the permission, they CAN NOT right/left click on sand
-  # be aware though... interaction events are called first, then block break/place next
-  # this isn't something a plugin can change, its a bukkit thing. so the player kinda needs interaction
-  # perms just to be able to place and/or break
-  InteractPermission: 'advbanitem.perms.limit.interact.sand'
-
-  # inverts the limit's permissions
-  # if this is false, it means the above comments are the same. meaning,
-  # they require the permissions above to be able to place/break the block
-  #
-  # if this is true, it means someone with the permissions CAN NOT place/break the block
-  # and it means someone without the permission CAN place the blocks,
-  # meaning they CAN NOT interact with blocks even if they have the permission
-  # and it also means if the permission is empty, it means they CAN NOT place/break the block
-  # because an empty permission means the block isn't disabled, but with permission activates the limit
-  # basically, if this is true, the permission stops players placing/breaking/interacting
-  # whereas if it was false, the permission allows the players to placing/breaking/interact
-  InvertPermissions: false
-
-# Custom messages when players try to break/place/interact with blocks when they cant
-# These are the available wildcard things:
-#   %p - the place permission string
-#   %b - the break permission string
-#   %i - the interact permission string
-#   %u - the player's username
-#   %w - the name of the world the player is in
-# Colours are also supported using the & symbol (i haven't tested the other character that the & translates to but that should work too)
-# just make sure the value after the & is a valid colour code... because it'll show if it's not
-# checking if the value is valid is skipped to increase performance (i mean a few extra microseconds isn't much... but eh)
-# available colour codes are: 0123456789abcdefklmnor
-  NoPlaceMessage: '&4You dont have permission to place sand! &6you need &3%p'
-  NoBreakMessage: '&4You dont have permission to place sand! &6you need &3%b'
-  NoInteractMessage: '&4You dont have permission to place sand! &6you need &3%i'
-
-# ----- below are some less essay-based explanations... lol --------
-
-# an example setup:
-# only allows sand in the "sand-world" world, and players can only
-# place/break the block if they have those 2 permissions.
-# also, not including a permissions auto-gives the player permission... sort of
-# they already have interaction perms because it isnt specified basically :)
-# if you were to invert this, no permission specified means they can't place it
-# but also means a permission specified, if they have it, they cant place. if they dont
-# have that permission, they CAN place :)
-12:
-  DisallowedWorlds:
-    - 'sand-world'
-  InvertWorlds: true
-  PlacePermission: 'advbanitem.perms.limit.place.sand'
-  BreakPermission: 'advbanitem.perms.limit.break.sand'
-  NoPlaceMessage: '&4You dont have permission to place sand! &6you need &3%p'
-  NoBreakMessage: '&4You dont have permission to break sand! &6you need &3%b'
-
-# a full example for a non existant block: (commented out because.... yeah)
-#      152000:
-#        # these are the "limited" metadatas
-#        MetaData:
-#          - '12'
-#          - '30'
-#          - '25'
-#
-#        # inverting it makes them "not limited"; countering the above statement
-#        # the above metadata wont be processed. any other data will be
-#        InvertMetaData: true
-#
-#        # dont allow this block in the okay-then world
-#        DisallowedWorlds:
-#          - 'okay-then'
-#        # if this is false, you dont need to specify the InvertWorlds bit, you can just remove it
-#        InvertWorlds: false
-#
-#        # make it so people with the below permissions CANNOT place/break/interact with this limited block
-#        InvertPermissions: true
-#        # people with these permission are NOT allowed to place/break/interact with this block.
-#        # no one will have that "no_one_will...etc" permission, meaning they can interact with the block.
-#        # and if someone doesn't have the place/break permissions below, they CAN place/break that block.
-#        # i mentioned before, the interaction event this plugin uses is fired first, then place/break events
-#        # so interact permissions can get in the way of placing/breaking unfortunately... and it'd be fiddly getting past that
-#        # interactions are only called if you right/left click ON the block, not in the air
-#        # (unless you say to do that in the config.yml)
-#        PlacePermission: 'advbanitem.perms.limit.place.sand'
-#        BreakPermission: 'advbanitem.perms.limit.break.sand'
-#        InteractPermission: 'no_one_will_have_this_permission_lol'
-#        NoPlaceMessage: '&4You dont have permission to place sand! &6you need &3%p'
-#        NoBreakMessage: '&4You dont have permission to break sand! &6you need &3%b'

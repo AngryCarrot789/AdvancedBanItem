@@ -1,11 +1,14 @@
 package reghzy.advbanitem.limit;
 
-import org.bukkit.World;
-import org.bukkit.entity.Player;
-import reghzy.advbanitem.permissions.PermissionsHelper;
+import org.bukkit.configuration.ConfigurationSection;
+import reghzy.advbanitem.AdvancedBanItem;
+import reghzy.advbanitem.config.Config;
+import reghzy.advbanitem.logs.ChatFormat;
 
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 /**
  * A class which contains information about blacklisting a specific block
@@ -14,113 +17,135 @@ import java.util.List;
  */
 public class BlockLimiter {
     public int id;
-    public final HashSet<Integer> metadata;
-    public boolean invertMetadata;
-    public boolean invertPermission;
-    public boolean invertWorld;
-    public String placePermission;
-    public String breakPermission;
-    public String interactPermission;
-    public String noPlaceMessage;
-    public String noBreakMessage;
-    public String noInteractMessage;
+    public final HashMap<Integer, MetaLimit> metadata;
+    public boolean defaultInvertPermission;
+    public boolean defaultInvertWorld;
+    public List<String> defaultDisallowedWorlds;
+    public String defaultPlacePermission;
+    public String defaultBreakPermission;
+    public String defaultInteractPermission;
+    public String defaultNoPlaceMessage;
+    public String defaultNoBreakMessage;
+    public String defaultNoInteractMessage;
 
-    public static final String MetaDataName           = "MetaData";
-    public static final String DisallowedWorldsName   = "DisallowedWorlds";
-    public static final String InvertWorldName        = "InvertWorlds";
-    public static final String PlacePermissionName    = "PlacePermission";
-    public static final String BreakPermissionName    = "BreakPermission";
-    public static final String InteractPermissionName = "InteractPermission";
-    public static final String InvertMetadataName     = "InvertMetaData";
-    public static final String InvertPermissionsName  = "InvertPermissions";
-    public static final String NoPlaceMessageName     = "NoPlaceMessage";
-    public static final String NoBreakMessageName     = "NoBreakMessage";
-    public static final String NoInteractMessageName  = "NoInteractMessage";
-
-    public static final String DefaultNoPlaceMessage    = "&4You don't have permission to place this block!";
-    public static final String DefaultNoBreakMessage    = "&4You don't have permission to break this block!";
-    public static final String DefaultNoInteractMessage = "&4You don't have permission to interact with this block!";
-
-    public BlockLimiter(int id, HashSet<Integer> metadata, boolean invertMetadata, boolean invertPermission, boolean invertWorld, List<String> disallowedWorlds,
-                        String placePermission, String breakPermission, String interactPermission,
-                        String noPlaceMessage, String noBreakMessage, String noInteractMessage) {
-        this.id                 = id;
-        this.metadata           = metadata;
-        this.invertMetadata     = invertMetadata;
-        this.invertPermission   = invertPermission;
-        this.invertWorld        = invertWorld;
-        this.placePermission    = placePermission;
-        this.breakPermission    = breakPermission;
-        this.interactPermission = interactPermission;
-        this.noPlaceMessage     = (noPlaceMessage    == null) ? DefaultNoPlaceMessage    : noPlaceMessage;
-        this.noBreakMessage     = (noBreakMessage    == null) ? DefaultNoBreakMessage    : noBreakMessage;
-        this.noInteractMessage  = (noInteractMessage == null) ? DefaultNoInteractMessage : noInteractMessage;
-
-        WorldLookup.addBlockDisallowedWorlds(this.id, disallowedWorlds);
+    public BlockLimiter(int id, HashMap<Integer, MetaLimit> metadata,
+                        List<String> defaultDisallowedWorlds,
+                        boolean defaultInvertPermission,
+                        boolean defaultInvertWorld,
+                        String defaultPlacePermission,
+                        String defaultBreakPermission,
+                        String defaultInteractPermission,
+                        String defaultNoPlaceMessage,
+                        String defaultNoBreakMessage,
+                        String defaultNoInteractMessage) {
+        this.id                      = id;
+        this.metadata                = metadata;
+        this.defaultDisallowedWorlds = defaultDisallowedWorlds;
+        this.defaultInvertPermission = defaultInvertPermission;
+        this.defaultInvertWorld      = defaultInvertWorld;
+        this.defaultPlacePermission  = defaultPlacePermission;
+        this.defaultBreakPermission  = defaultBreakPermission;
+        this.defaultInteractPermission = defaultInteractPermission;
+        this.defaultNoPlaceMessage    = defaultNoPlaceMessage;
+        this.defaultNoBreakMessage    = defaultNoBreakMessage;
+        this.defaultNoInteractMessage = defaultNoInteractMessage;
     }
 
-    public boolean canPlace(Player player) {
-        if (allowsWorld(player.getWorld())) {
-            return hasPermission(player, this.placePermission);
-        }
-
-        return false;
+    public static void reloadMainConfigInfo(Config config) {
+        LimitConfigHelper.FallbackNoPlaceMessage = config.getString(LimitConfigHelper.DefaultPlaceMessageName, "&4You don't have permission to place this block!");
+        LimitConfigHelper.FallbackNoBreakMessage = config.getString(LimitConfigHelper.DefaultBreakMessageName, "&4You don't have permission to break this block!");
+        LimitConfigHelper.FallbackNoInteractMessage = config.getString(LimitConfigHelper.DefaultInteractMessageName, "&4You don't have permission to interact with this block!");
     }
 
-    public boolean canBreak(Player player) {
-        if (allowsWorld(player.getWorld())) {
-            return hasPermission(player, this.breakPermission);
-        }
+    public static BlockLimiter createFromConfigSection(ConfigurationSection limitedIdSection, int id) {
+        List<String> defaultDisallowedWorlds = LimitConfigHelper.getDefaultDisallowedWorlds(limitedIdSection);
+        boolean defaultInvertPermissions = LimitConfigHelper.getDefaultInvertPermissions(limitedIdSection);
+        boolean defaultInvertWorlds      = LimitConfigHelper.getDefaultInvertWorlds(limitedIdSection);
+        String defaultPlacePermission    = LimitConfigHelper.getDefaultPlacePermission(limitedIdSection);
+        String defaultBreakPermission    = LimitConfigHelper.getDefaultBreakPermission(limitedIdSection);
+        String defaultInteractPermission = LimitConfigHelper.getDefaultInteractPermission(limitedIdSection);
+        String defaultPlaceMessage       = LimitConfigHelper.getDefaultPlaceMessage(limitedIdSection);
+        String defaultBreakMessage       = LimitConfigHelper.getDefaultBreakMessage(limitedIdSection);
+        String defaultInteractMessage    = LimitConfigHelper.getDefaultInteractMessage(limitedIdSection);
 
-        return false;
-    }
-
-    public boolean canInteract(Player player) {
-        if (allowsWorld(player.getWorld())) {
-            return hasPermission(player, this.interactPermission);
-        }
-
-        return false;
-    }
-
-    public boolean hasMetadata(int data) {
-        if (invertMetadata) {
-            if (ignoreMetadata())
-                return false;
-            return !this.metadata.contains(data);
+        HashMap<Integer, MetaLimit> metaLimits;
+        ConfigurationSection metaSections = LimitConfigHelper.getMetadataSection(limitedIdSection);
+        if (metaSections == null) {
+            metaLimits = new HashMap<Integer, MetaLimit>(1);
+            metaLimits.put(-1, new MetaLimit(
+                    id, -1, defaultDisallowedWorlds, defaultInvertPermissions, defaultInvertWorlds,
+                    defaultPlacePermission, defaultBreakPermission, defaultInteractPermission,
+                    defaultPlaceMessage, defaultBreakMessage, defaultInteractMessage));
         }
         else {
-            if (ignoreMetadata())
-                return true;
-            return this.metadata.contains(data);
+            Set<String> metaIds = metaSections.getKeys(false);
+            if (metaIds == null || metaIds.size() == 0) {
+                metaLimits = new HashMap<Integer, MetaLimit>(1);
+                metaLimits.put(-1, new MetaLimit(
+                        id, -1, defaultDisallowedWorlds, defaultInvertPermissions, defaultInvertWorlds,
+                        defaultPlacePermission, defaultBreakPermission, defaultInteractPermission,
+                        defaultPlaceMessage, defaultBreakMessage, defaultInteractMessage));
+            }
+            else {
+                metaLimits = new HashMap<Integer, MetaLimit>(metaIds.size());
+                for(String metaKey : metaIds) {
+                    try {
+                        int meta = Integer.parseInt(metaKey);
+                        ConfigurationSection metaSection = metaSections.getConfigurationSection(metaKey);
+                        if (metaSection == null) {
+                            metaLimits.put(meta, new MetaLimit(
+                                    id, meta, defaultDisallowedWorlds,
+                                    defaultInvertPermissions, defaultInvertWorlds,
+                                    defaultPlacePermission, defaultBreakPermission, defaultInteractPermission,
+                                    defaultPlaceMessage, defaultBreakMessage, defaultInteractMessage));
+                        }
+                        else {
+                            List<String> disallowedWorlds = LimitConfigHelper.getDisallowedWorlds(metaSection, defaultDisallowedWorlds);
+                            boolean invertPermissions = LimitConfigHelper.getInvertPermissions(metaSection, defaultInvertPermissions);
+                            boolean invertWorlds      = LimitConfigHelper.getInvertWorlds(metaSection, defaultInvertWorlds);
+                            String placePermission    = LimitConfigHelper.getPlacePermission(metaSection, defaultPlacePermission);
+                            String breakPermission    = LimitConfigHelper.getBreakPermission(metaSection, defaultBreakPermission);
+                            String interactPermission = LimitConfigHelper.getInteractPermission(metaSection, defaultInteractPermission);
+                            String noPlaceMessage     = LimitConfigHelper.getNoPlaceMessage(metaSection, defaultPlaceMessage);
+                            String noBreakMessage     = LimitConfigHelper.getNoBreakMessage(metaSection, defaultBreakMessage);
+                            String noInteractMessage  = LimitConfigHelper.getNoInteractMessage(metaSection, defaultInteractMessage);
+                            metaLimits.put(meta, new MetaLimit(
+                                    id, meta, disallowedWorlds,
+                                    invertPermissions, invertWorlds,
+                                    placePermission, breakPermission, interactPermission,
+                                    noPlaceMessage, noBreakMessage, noInteractMessage));
+                            WorldLookup.addDisallowed(id, meta, disallowedWorlds);
+                        }
+                    }
+                    catch (Exception e) {
+                        AdvancedBanItem.getInstance().getChatLogger().logPlugin(
+                                "Failed to parse integer for metadata list: " + ChatFormat.apostrophise(metaKey) +
+                                "for ID: " + ChatFormat.apostrophise(String.valueOf(id)));
+                    }
+                }
+            }
         }
+
+        return new BlockLimiter(
+                id, metaLimits, defaultDisallowedWorlds,
+                defaultInvertPermissions, defaultInvertWorlds,
+                defaultPlacePermission, defaultBreakPermission, defaultInteractPermission,
+                defaultPlaceMessage, defaultBreakMessage, defaultInteractMessage);
     }
 
-    public boolean ignoreMetadata() {
-        return this.metadata.contains(-1);
+    //public void saveToConfigSection(ConfigurationSection section) {
+    //
+    //}
+
+    public MetaLimit getMetaMessage(int data) {
+        MetaLimit ignore = getIgnoreMeta();
+        if (ignore == null) {
+            return this.metadata.get(data);
+        }
+        return ignore;
     }
 
-    public boolean hasPermission(Player player, String permission) {
-        if (permission == null)
-            return !invertPermission;
-
-        if (invertPermission) {
-            return !PermissionsHelper.hasPermission(player, permission);
-        }
-        else {
-            return PermissionsHelper.hasPermission(player, permission);
-        }
-    }
-
-    /**
-     * Returns true if this BlockLimiter allows the given world (allows, yes)
-     */
-    public boolean allowsWorld(World world) {
-        if (this.invertWorld) {
-            return WorldLookup.containsDisallowedWorld(this.id, world.getName());
-        }
-        else {
-            return !WorldLookup.containsDisallowedWorld(this.id, world.getName());
-        }
+    public MetaLimit getIgnoreMeta() {
+        return this.metadata.get(-1);
     }
 }

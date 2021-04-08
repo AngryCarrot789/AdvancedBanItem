@@ -27,7 +27,7 @@ public final class ArgsParser {
         try {
             if (itemData.value.contains(":")) {
                 int dataSplit = itemData.value.indexOf(":");
-                int id = Integer.parseInt(itemData.value.substring(0, dataSplit - 1));
+                int id = Integer.parseInt(itemData.value.substring(0, dataSplit));
                 int data = Integer.parseInt(itemData.value.substring(dataSplit + 1));
                 return new ParsedValue<ItemDataPair>(new ItemDataPair(id, data), false);
             }

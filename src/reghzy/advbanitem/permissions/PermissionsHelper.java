@@ -1,12 +1,9 @@
 package reghzy.advbanitem.permissions;
 
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import reghzy.advbanitem.AdvancedBanItem;
-import reghzy.advbanitem.logs.ChatFormat;
-import reghzy.advbanitem.logs.ChatLogger;
 
 public class PermissionsHelper {
     private static IPermsManager perms;

@@ -31,3 +31,10 @@ BypassWorldPermission: advbanitem.bypass.world
 # and also this permission doesn't skip the world check. if you have bypass perms, but the block
 # is disabled in the world (or if you dont have world bypass perms), you CAN NOT place the block.
 BypassPermsPermission: advbanitem.bypass.perms
+
+# the default messages that are used if a block limit's metadata
+# has no message, and if the block limit has no default message
+# these are the final fallback messages basically
+DefaultNoPlaceMessage: '&4You dont have permission to place this block!'
+DefaultNoBreakMessage: '&4You dont have permission to break this block!'
+DefaultNoInteractMessage: '&4You dont have permission to interact with this block!'

@@ -1,8 +1,11 @@
 package reghzy.advbanitem.listeners;
 
 import org.bukkit.Bukkit;
+import org.bukkit.craftbukkit.v1_6_R3.event.CraftEventFactory;
 import org.bukkit.event.Listener;
+import org.bukkit.plugin.SimplePluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.plugin.java.JavaPluginLoader;
 import reghzy.advbanitem.REghZyBasePlugin;
 
 /**

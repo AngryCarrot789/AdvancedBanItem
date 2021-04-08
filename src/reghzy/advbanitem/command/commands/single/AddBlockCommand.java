@@ -7,13 +7,14 @@ import reghzy.advbanitem.command.ExecutableCommand;
 import reghzy.advbanitem.command.helpers.ArgsParser;
 import reghzy.advbanitem.command.helpers.ItemDataPair;
 import reghzy.advbanitem.command.helpers.ParsedValue;
+import reghzy.advbanitem.limit.MetaLimit;
 import reghzy.advbanitem.permissions.PermissionsHelper;
 import reghzy.advbanitem.limit.BlockLimiter;
 import reghzy.advbanitem.logs.ChatFormat;
 import reghzy.advbanitem.logs.ChatLogger;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
 
 public class AddBlockCommand implements ExecutableCommand {
     public static final CommandDescriptor descriptor =
@@ -40,20 +41,22 @@ public class AddBlockCommand implements ExecutableCommand {
         ParsedValue<String> breakPermission = ArgsParser.parseString(args, 2);
         ParsedValue<String> interPermission = ArgsParser.parseString(args, 3);
 
-        HashSet<Integer> metadata = new HashSet<Integer>(1);
-        metadata.add(newBlock.value.data);
-
-        BlockLimiter limiter = new BlockLimiter(
-                newBlock.value.id,
-                metadata,
-                false, false, false,
-                new ArrayList<String>(),
-                placePermission.failed ? null : placePermission.value,
-                breakPermission.failed ? null : breakPermission.value,
-                interPermission.failed ? null : interPermission.value,
-                null, null, null);
-        AdvancedBanItem.getInstance().getLimitManager().addLimiter(limiter.id, limiter);
-        AdvancedBanItem.getInstance().getLimitManager().saveDataToConfig();
+        HashMap<Integer, MetaLimit> map = new HashMap<Integer, MetaLimit>(1);
+        //MetaLimit pair = BlockLimiter.defaultMessage(newBlock.value.data);
+        //map.put(pair.metadata, pair);
+        //BlockLimiter limiter = new BlockLimiter(
+        //        newBlock.value.id,
+        //        map,
+        //        false, false,
+        //        new ArrayList<String>(),
+        //        placePermission.failed ? null : placePermission.value,
+        //        breakPermission.failed ? null : breakPermission.value,
+        //        interPermission.failed ? null : interPermission.value,
+        //        BlockLimiter.FallbackNoPlaceMessage,
+        //        BlockLimiter.FallbackNoBreakMessage,
+        //        BlockLimiter.FallbackNoInteractMessage);
+        //AdvancedBanItem.getInstance().getLimitManager().addLimiter(limiter.id, limiter);
+        //AdvancedBanItem.getInstance().getLimitManager().saveDataToConfig();
 
         logger.logInfoPrefix("Added the block " + ChatFormat.apostrophise(newBlock.value.toString()));
     }

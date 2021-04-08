@@ -8,7 +8,7 @@ import reghzy.advbanitem.command.helpers.ArgsParser;
 import reghzy.advbanitem.command.helpers.ParsedValue;
 import reghzy.advbanitem.permissions.PermissionsHelper;
 import reghzy.advbanitem.limit.BlockLimiter;
-import reghzy.advbanitem.limit.WorldLookup;
+import reghzy.advbanitem.limit.OldWorldLookup;
 import reghzy.advbanitem.logs.ChatFormat;
 import reghzy.advbanitem.logs.ChatLogger;
 
@@ -22,25 +22,25 @@ public class RemoveBlockCommand implements ExecutableCommand {
 
     @Override
     public void execute(CommandSender sender, ChatLogger logger, String[] args) {
-        if (!PermissionsHelper.isConsoleOrHasPermsOrOp(sender, AdvancedBanItem.RemoveBlockPermission)) {
-            logger.logInfoPrefix("You dont have permission for this command!");
-            return;
-        }
+        //if (!PermissionsHelper.isConsoleOrHasPermsOrOp(sender, AdvancedBanItem.RemoveBlockPermission)) {
+        //    logger.logInfoPrefix("You dont have permission for this command!");
+        //    return;
+        //}
 
-        ParsedValue<Integer> blockId = ArgsParser.parseInteger(args, 0);
-        if (blockId.failed) {
-            logger.logInfoPrefix("Error with the block ID");
-            return;
-        }
+        //ParsedValue<Integer> blockId = ArgsParser.parseInteger(args, 0);
+        //if (blockId.failed) {
+        //    logger.logInfoPrefix("Error with the block ID");
+        //    return;
+        //}
 
-        BlockLimiter limiter = AdvancedBanItem.getInstance().getLimitManager().removeLimiter(blockId.value);
-        if (limiter == null) {
-            logger.logInfoPrefix("There isn't a limiter for that block");
-        }
-        else {
-            WorldLookup.removeBlockDisallowedWorld(blockId.value);
-            AdvancedBanItem.getInstance().getLimitManager().saveDataToConfig();
-            logger.logInfoPrefix("Removed the limiter for block ID: " + ChatFormat.apostrophise(blockId.value.toString()));
-        }
+        //BlockLimiter limiter = AdvancedBanItem.getInstance().getLimitManager().removeLimiter(blockId.value);
+        //if (limiter == null) {
+        //    logger.logInfoPrefix("There isn't a limiter for that block");
+        //}
+        //else {
+        //    OldWorldLookup.removeBlockDisallowedWorld(blockId.value);
+        //    AdvancedBanItem.getInstance().getLimitManager().saveDataToConfig();
+        //    logger.logInfoPrefix("Removed the limiter for block ID: " + ChatFormat.apostrophise(blockId.value.toString()));
+        //}
     }
 }

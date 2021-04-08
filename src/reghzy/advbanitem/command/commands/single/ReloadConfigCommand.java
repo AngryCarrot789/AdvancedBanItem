@@ -4,12 +4,13 @@ import org.bukkit.command.CommandSender;
 import reghzy.advbanitem.AdvancedBanItem;
 import reghzy.advbanitem.config.Config;
 import reghzy.advbanitem.config.ConfigManager;
+import reghzy.advbanitem.limit.BlockLimiter;
 import reghzy.advbanitem.limit.LimitManager;
-import reghzy.advbanitem.listeners.BlockItemListener;
 import reghzy.advbanitem.command.CommandDescriptor;
 import reghzy.advbanitem.command.ExecutableCommand;
 import reghzy.advbanitem.command.helpers.ArgsParser;
 import reghzy.advbanitem.command.helpers.ParsedValue;
+import reghzy.advbanitem.listeners.PlayerListeners;
 import reghzy.advbanitem.logs.ChatFormat;
 import reghzy.advbanitem.logs.ChatLogger;
 
@@ -31,7 +32,9 @@ public class ReloadConfigCommand implements ExecutableCommand {
         if (configName.value.equalsIgnoreCase("main")) {
             if (ConfigManager.getMainConfig().tryLoadYaml()) {
                 logger.logInfoPrefix(ChatFormat.green("Successfully reloaded the main config!"));
-                BlockItemListener.reloadInfoFromConfig(ConfigManager.getMainConfig());
+                PlayerListeners.reloadInfoFromConfig(ConfigManager.getMainConfig());
+                AdvancedBanItem.getInstance().getLimitManager().loadInfoFromMainConfig(ConfigManager.getMainConfig());
+                BlockLimiter.reloadMainConfigInfo(ConfigManager.getMainConfig());
             }
             else {
                 logger.logInfoPrefix(ChatFormat.red("Failed to reload the main config!"));
@@ -43,7 +46,6 @@ public class ReloadConfigCommand implements ExecutableCommand {
             if (config.tryLoadYaml()) {
                 logger.logInfoPrefix(ChatFormat.green("Successfully reloaded the limits config!"));
                 LimitManager limitManager = AdvancedBanItem.getInstance().getLimitManager();
-                limitManager.reloadInfoFromConfig(config);
                 limitManager.loadLimits();
                 logger.logInfoPrefix(ChatFormat.green("Loaded " + limitManager.limitsCount() + " Block Limits"));
             }

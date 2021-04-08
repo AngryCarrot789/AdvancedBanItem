@@ -1,26 +1,26 @@
 package reghzy.advbanitem.listeners;
 
+import net.minecraft.server.v1_6_R3.Packet60Explosion;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.world.WorldEvent;
 import org.bukkit.inventory.ItemStack;
+import reghzy.advbanitem.REghZyBasePlugin;
 import reghzy.advbanitem.config.Config;
 import reghzy.advbanitem.limit.LimitManager;
-import reghzy.advbanitem.REghZyBasePlugin;
 
-public class BlockItemListener extends BaseListener implements Listener {
+public class PlayerListeners extends BaseListener implements Listener {
     private final LimitManager limitManager;
 
     public static boolean CountAirAsInteraction = true;
     public static boolean ProcessPlacedBlockInteraction = true;
 
-    public BlockItemListener(LimitManager limitManager, REghZyBasePlugin plugin) {
+    public PlayerListeners(LimitManager limitManager, REghZyBasePlugin plugin) {
         super(plugin);
         this.limitManager = limitManager;
         registerEvent(this);
@@ -31,21 +31,7 @@ public class BlockItemListener extends BaseListener implements Listener {
         ProcessPlacedBlockInteraction = config.getBoolean("ProcessPlacedBlockInteraction");
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onBlockBreak(BlockBreakEvent event) {
-        if (limitManager.shouldCancelBlockBreak(event.getPlayer(), event.getBlock())) {
-            event.setCancelled(true);
-        }
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onBlockPlace(BlockPlaceEvent event) {
-        if (limitManager.shouldCancelBlockPlace(event.getPlayer(), event.getBlock())) {
-            event.setCancelled(true);
-        }
-    }
-
-    @EventHandler(priority = EventPriority.HIGH)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onInteraction(PlayerInteractEvent event) {
         Player player = event.getPlayer();
         Action action = event.getAction();

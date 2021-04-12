@@ -5,7 +5,6 @@ import net.luckperms.api.LuckPermsProvider;
 import net.luckperms.api.model.user.User;
 import net.luckperms.api.model.user.UserManager;
 import org.bukkit.entity.Player;
-import ru.tehkode.permissions.bukkit.PermissionsEx;
 
 public class LuckPermsManager implements IPermsManager {
     private LuckPerms perms;

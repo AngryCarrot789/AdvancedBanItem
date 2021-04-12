@@ -4,75 +4,52 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class WorldLookup {
+/**
+ * Contains a map which maps the hashcode of an ID and Metadata to a list of disallowed world names.
+ */
+public final class WorldLookup {
     // Key:   the hashcode of the item ID and Metadata (use getBlockHash())
     // Value: an array of disallowed world name hashes
-    private static final HashMap<Integer, ArrayList<Integer>> blockWorldHashes;
-    // Key:   the hashcode of the world name
-    // value: the actual world name string
-    private static final HashMap<Integer, String> hashesToName;
+    private static final HashMap<Integer, ArrayList<String>> blockWorldHashes;
+
+    private WorldLookup() { }
 
     public static void addDisallowed(int id, int meta, String worldName) {
         int blockHash = getBlockHash(id, meta);
-        int worldHash = worldName.hashCode();
-        ArrayList<Integer> disallowedWorlds = blockWorldHashes.get(blockHash);
+        ArrayList<String> disallowedWorlds = blockWorldHashes.get(blockHash);
         if (disallowedWorlds == null) {
-            disallowedWorlds = new ArrayList<Integer>(4);
+            disallowedWorlds = new ArrayList<String>(4);
             blockWorldHashes.put(id, disallowedWorlds);
         }
-        disallowedWorlds.add(worldHash);
-        hashesToName.put(worldHash, worldName);
+        disallowedWorlds.add(worldName);
     }
 
     public static void addDisallowed(int id, int meta, List<String> worlds) {
         int blockHash = getBlockHash(id, meta);
-        ArrayList<Integer> disallowedWorlds = blockWorldHashes.get(blockHash);
+        ArrayList<String> disallowedWorlds = blockWorldHashes.get(blockHash);
         if (disallowedWorlds == null) {
-            disallowedWorlds = new ArrayList<Integer>(worlds.size());
-            blockWorldHashes.put(blockHash, disallowedWorlds);
-        }
-        for (String worldName : worlds) {
-            int worldHash = worldName.hashCode();
-            disallowedWorlds.add(worldHash);
-            hashesToName.put(worldHash, worldName);
-        }
-    }
-
-    public static void addDisallowedHashes(int id, int meta, List<Integer> worlds) {
-        int blockHash = getBlockHash(id, meta);
-        ArrayList<Integer> disallowedWorlds = blockWorldHashes.get(blockHash);
-        if (disallowedWorlds == null) {
-            disallowedWorlds = new ArrayList<Integer>(worlds.size());
+            disallowedWorlds = new ArrayList<String>(worlds.size());
             blockWorldHashes.put(blockHash, disallowedWorlds);
         }
         disallowedWorlds.addAll(worlds);
     }
 
     public static void removeDisallowed(int id, int meta) {
-        int hash = getBlockHash(id, meta);
-        blockWorldHashes.remove(hash);
+        blockWorldHashes.remove(getBlockHash(id, meta));
     }
 
     public static void removeDisallowed(int id, int meta, String world) {
-        removeDisallowed(id, meta, world.hashCode());
-    }
-
-    public static void removeDisallowed(int id, int meta, int worldHash) {
         int hash = getBlockHash(id, meta);
-        ArrayList<Integer> disallowedWorlds = blockWorldHashes.get(hash);
+        ArrayList<String> disallowedWorlds = blockWorldHashes.get(hash);
         if (disallowedWorlds == null) {
             return;
         }
-        disallowedWorlds.remove(worldHash);
+        disallowedWorlds.remove(world);
     }
 
-    public static boolean containsWorld(int id, int meta, String world) {
-        return containsWorld(id, meta, world.hashCode());
-    }
-
-    public static boolean containsWorld(int id, int meta, int worldHash) {
+    public static boolean containsWorld(int id, int meta, String worldHash) {
         int hash = getBlockHash(id, meta);
-        ArrayList<Integer> disallowedWorlds = blockWorldHashes.get(hash);
+        ArrayList<String> disallowedWorlds = blockWorldHashes.get(hash);
         if (disallowedWorlds == null || disallowedWorlds.size() == 0) {
             return false;
         }
@@ -80,22 +57,28 @@ public class WorldLookup {
     }
 
     public static void clearDisallowedWorlds() {
-        for (ArrayList<Integer> worldNameHashes : blockWorldHashes.values()) {
+        for (ArrayList<String> worldNameHashes : blockWorldHashes.values()) {
             worldNameHashes.clear();
         }
         blockWorldHashes.clear();
-    }
-
-    public static String getWorldFromHash(int hash) {
-        return hashesToName.get(hash);
     }
 
     public static int getBlockHash(int id, int meta) {
         return id + (meta << 16);
     }
 
+    // i havent tested these... but ithink this is how you extract data
+    // within a number, AND the hash by the the number returns only
+    // the bits which add to 1 or 2... sort of, 0 ignored
+    public static int hashGetId(int hash) {
+        return hash & 0xFF;
+    }
+
+    public static int hashGetMeta(int hash) {
+        return hash & 0xFF00;
+    }
+
     static {
-        blockWorldHashes = new HashMap<Integer, ArrayList<Integer>>(128);
-        hashesToName = new HashMap<Integer, String>(128);
+        blockWorldHashes = new HashMap<Integer, ArrayList<String>>(128);
     }
 }

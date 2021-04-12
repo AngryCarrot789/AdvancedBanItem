@@ -4,7 +4,7 @@ import org.bukkit.command.CommandSender;
 import reghzy.advbanitem.AdvancedBanItem;
 import reghzy.advbanitem.config.Config;
 import reghzy.advbanitem.config.ConfigManager;
-import reghzy.advbanitem.limit.BlockLimiter;
+import reghzy.advbanitem.limit.LimitConfigHelper;
 import reghzy.advbanitem.limit.LimitManager;
 import reghzy.advbanitem.command.CommandDescriptor;
 import reghzy.advbanitem.command.ExecutableCommand;
@@ -34,7 +34,7 @@ public class ReloadConfigCommand implements ExecutableCommand {
                 logger.logInfoPrefix(ChatFormat.green("Successfully reloaded the main config!"));
                 PlayerListeners.reloadInfoFromConfig(ConfigManager.getMainConfig());
                 AdvancedBanItem.getInstance().getLimitManager().loadInfoFromMainConfig(ConfigManager.getMainConfig());
-                BlockLimiter.reloadMainConfigInfo(ConfigManager.getMainConfig());
+                LimitConfigHelper.reloadMainConfigInfo(ConfigManager.getMainConfig());
             }
             else {
                 logger.logInfoPrefix(ChatFormat.red("Failed to reload the main config!"));

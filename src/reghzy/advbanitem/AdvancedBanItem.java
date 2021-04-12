@@ -5,7 +5,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import reghzy.advbanitem.command.MainCommandExecutor;
 import reghzy.advbanitem.config.ConfigManager;
 import reghzy.advbanitem.config.FileHelper;
-import reghzy.advbanitem.limit.BlockLimiter;
+import reghzy.advbanitem.limit.LimitConfigHelper;
 import reghzy.advbanitem.limit.LimitManager;
 import reghzy.advbanitem.listeners.BlockListeners;
 import reghzy.advbanitem.listeners.PlayerListeners;
@@ -44,7 +44,7 @@ public class AdvancedBanItem extends JavaPlugin implements REghZyBasePlugin {
 
         try {
             ConfigManager.initialise();
-            BlockLimiter.reloadMainConfigInfo(ConfigManager.getMainConfig());
+            LimitConfigHelper.reloadMainConfigInfo(ConfigManager.getMainConfig());
             chatLogger.logPlugin("Starting Limit Manager");
             limitManager = new LimitManager(ConfigManager.getLimitConfig());
             chatLogger.logPlugin("Starting Block Listener");

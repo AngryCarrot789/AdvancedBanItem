@@ -3,8 +3,8 @@ package reghzy.advbanitem.command.helpers;
 import org.bukkit.block.Block;
 
 public class ItemDataPair {
-    public int id;
-    public int data;
+    public final int id;
+    public final int data;
 
     public ItemDataPair(int id, int data) {
         this.id = id;
@@ -12,7 +12,7 @@ public class ItemDataPair {
     }
 
     public boolean match(Block block) {
-        return block.getType().getId() == this.id && (this.data == -1 || block.getData() == this.data);
+        return block.getTypeId() == this.id && (this.data == -1 || block.getData() == this.data);
     }
 
     @Override

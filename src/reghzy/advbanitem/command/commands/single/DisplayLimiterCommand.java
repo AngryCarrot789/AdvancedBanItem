@@ -48,10 +48,10 @@ public class DisplayLimiterCommand implements ExecutableCommand {
         else {
             for (MetaLimit pair : limiter.metadata.values()) {
                 if (in == countIndex) {
-                    metadataString.append(pair.toString());
+                    metadataString.append(pair.formattedDescription());
                 }
                 else {
-                    metadataString.append(pair.toString()).append('\n').append(ChatColor.DARK_AQUA).append("---------------------------------------------\n").append(ChatColor.GOLD);
+                    metadataString.append(pair.formattedDescription()).append('\n').append(ChatColor.DARK_AQUA).append("---------------------------------------------\n").append(ChatColor.GOLD);
                     in++;
                 }
             }
@@ -63,9 +63,9 @@ public class DisplayLimiterCommand implements ExecutableCommand {
         else {
             logger.logInfo("Default Disallowed Worlds: " + ChatColor.DARK_AQUA + StringHelper.joinArray(limiter.defaultDisallowedWorlds.toArray(new String[0]), 0, ", "));
         }
-        logger.logInfo("Default Place Permission: " + ChatColor.DARK_AQUA + nullPermissionCheck(limiter.defaultPlacePermission));
-        logger.logInfo("Default Break Permission: " + ChatColor.DARK_AQUA + nullPermissionCheck(limiter.defaultBreakPermission));
-        logger.logInfo("Default Interact Permission: " + ChatColor.DARK_AQUA + nullPermissionCheck(limiter.defaultInteractPermission));
+        logger.logInfo("Default Place Permission: " + ChatColor.DARK_AQUA + nullPermsCheck(limiter.defaultPlacePermission));
+        logger.logInfo("Default Break Permission: " + ChatColor.DARK_AQUA + nullPermsCheck(limiter.defaultBreakPermission));
+        logger.logInfo("Default Interact Permission: " + ChatColor.DARK_AQUA + nullPermsCheck(limiter.defaultInteractPermission));
         logger.logInfo("Default Place Message: " + ChatColor.DARK_AQUA + limiter.defaultNoPlaceMessage);
         logger.logInfo("Default Break Message: " + ChatColor.DARK_AQUA + limiter.defaultNoBreakMessage);
         logger.logInfo("Default Interact Message: " + ChatColor.DARK_AQUA + limiter.defaultNoInteractMessage);
@@ -73,7 +73,7 @@ public class DisplayLimiterCommand implements ExecutableCommand {
         logger.logInfo("Default Invert Perms: " + ChatColor.DARK_AQUA + limiter.defaultInvertPermission);
     }
 
-    public static String nullPermissionCheck(String permission) {
+    public static String nullPermsCheck(String permission) {
         if (permission == null)
             return ChatColor.RED + "(There is no permission)";
         return permission;

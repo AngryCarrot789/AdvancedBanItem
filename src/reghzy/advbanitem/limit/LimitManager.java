@@ -3,9 +3,14 @@ package reghzy.advbanitem.limit;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import reghzy.advbanitem.AdvancedBanItem;
 import reghzy.advbanitem.config.Config;
+import reghzy.advbanitem.helpers.StringHelper;
+import reghzy.advbanitem.logs.ChatFormat;
+import reghzy.advbanitem.logs.ChatLogger;
 import reghzy.advbanitem.permissions.PermissionsHelper;
 
 import java.util.HashMap;
@@ -32,25 +37,36 @@ public class LimitManager {
         WorldLookup.clearDisallowedWorlds();
         blockLimiters.clear();
 
+        ChatLogger logger = AdvancedBanItem.getInstance().getChatLogger();
+
         for(String key : this.config.getKeys(false)) {
             try {
-                int id = Integer.parseInt(key);
-                ConfigurationSection limitSection = this.config.getConfigurationSection(key);
-                if (limitSection == null) {
-                    AdvancedBanItem.getInstance().getChatLogger().logPlugin("ID " + key + " had nothing in it");
+                Integer id = StringHelper.parseInteger(key);
+                if (id == null) {
+                    logger.logPlugin("Failed to parse limiter key as an integer. Key: " + ChatFormat.apostrophise(key));
+                    if (StringHelper.countChar(key, ':') > 1) {
+                        logger.logPlugin("Make sure you dont put an ID and MetaData in the key, you must define the metadata within the block limiter section (see the example at the top of the config)");
+                    }
                 }
                 else {
-                    try {
-                        addLimiter(id, BlockLimiter.createFromConfigSection(limitSection, id));
+                    ConfigurationSection limitSection = this.config.getConfigurationSection(key);
+                    if (limitSection == null) {
+                        logger.logPlugin("ID " + key + " had nothing in it");
                     }
-                    catch (Exception e) {
-                        AdvancedBanItem.getInstance().getChatLogger().logPlugin("Failed to create a limit from the config");
-                        e.printStackTrace();
+                    else {
+                        try {
+                            BlockLimiter limiter = BlockLimiter.createFromConfigSection(limitSection, id, logger);
+                            if (limiter != null)
+                                addLimiter(id, limiter);
+                        }
+                        catch (Exception e) {
+                            logger.logPlugin("Failed to create a limit from the config");
+                            e.printStackTrace();
+                        }
                     }
                 }
             }
             catch (Exception e) {
-                AdvancedBanItem.getInstance().getChatLogger().logPlugin("Failed to load block limiter. Block ID: " + key);
                 e.printStackTrace();
             }
         }
@@ -103,15 +119,15 @@ public class LimitManager {
 
     // returns true if the event should be cancelled
     public boolean shouldCancelBlockBreak(Player player, Block block) {
-        if (playerBypassesChecks(player))
-            return false;
-
-        BlockLimiter limiter = blockLimiters.get(block.getType().getId());
+        BlockLimiter limiter = blockLimiters.get(block.getTypeId());
         if (limiter == null)
             return false;
 
-        MetaLimit meta = limiter.getMetaMessage(block.getData());
+        MetaLimit meta = limiter.getMetaLimit(block.getData());
         if (meta == null)
+            return false;
+
+        if (playerBypassesChecks(player))
             return false;
 
         if (meta.canBreak(player))
@@ -123,15 +139,15 @@ public class LimitManager {
 
     // returns true if the event should be cancelled
     public boolean shouldCancelBlockPlace(Player player, Block block) {
-        if (playerBypassesChecks(player))
-            return false;
-
-        BlockLimiter limiter = blockLimiters.get(block.getType().getId());
+        BlockLimiter limiter = blockLimiters.get(block.getTypeId());
         if (limiter == null)
             return false;
 
-        MetaLimit meta = limiter.getMetaMessage(block.getData());
+        MetaLimit meta = limiter.getMetaLimit(block.getData());
         if (meta == null)
+            return false;
+
+        if (playerBypassesChecks(player))
             return false;
 
         if (meta.canPlace(player))
@@ -143,26 +159,65 @@ public class LimitManager {
 
     // returns true if the event should be cancelled
     public boolean shouldCancelInteract(Player player, Block block) {
-        return shouldCancelInteract(player, block.getType().getId(), block.getData());
+        return shouldCancelInteract(player, block.getTypeId(), block.getData());
     }
 
     // returns true if the event should be cancelled
     public boolean shouldCancelInteract(Player player, int id, byte data) {
-        if (playerBypassesChecks(player))
-            return false;
-
         BlockLimiter limiter = blockLimiters.get(id);
         if (limiter == null)
             return false;
 
-        MetaLimit meta = limiter.getMetaMessage(data);
+        MetaLimit meta = limiter.getMetaLimit(data);
         if (meta == null)
+            return false;
+
+        if (playerBypassesChecks(player))
             return false;
 
         if (meta.canInteract(player))
             return false;
 
         sendDenyMessage(player, meta.noInteractMessage, meta);
+        return true;
+    }
+
+    public boolean shouldCancelInventoryClick(Player player, ItemStack itemStack) {
+        BlockLimiter limiter = blockLimiters.get(itemStack.getTypeId());
+        if (limiter == null)
+            return false;
+
+        MetaLimit meta = limiter.getMetaLimit(itemStack.getData().getData());
+        if (meta == null)
+            return false;
+
+        if (playerBypassesChecks(player))
+            return false;
+
+        if (meta.canClickInventory(player))
+            return false;
+
+        sendDenyMessage(player, meta.noInvClickMessage, meta);
+        return true;
+    }
+
+    public boolean shouldCancelPickup(Player player, Item item) {
+        ItemStack stack = item.getItemStack();
+        BlockLimiter limiter = blockLimiters.get(stack.getTypeId());
+        if (limiter == null)
+            return false;
+
+        MetaLimit meta = limiter.getMetaLimit(stack.getData().getData());
+        if (meta == null)
+            return false;
+
+        if (playerBypassesChecks(player))
+            return false;
+
+        if (meta.canPickupItem(player))
+            return false;
+
+        sendDenyMessage(player, meta.noPickupMessage, meta);
         return true;
     }
 

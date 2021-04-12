@@ -100,4 +100,11 @@ public class ChatFormat {
     public static String red(String content) {
         return ChatColor.RED + content;
     }
+
+    /**
+     * Makes the text dark aqua
+     */
+    public static String aqua(String content) {
+        return ChatColor.DARK_AQUA + content;
+    }
 }

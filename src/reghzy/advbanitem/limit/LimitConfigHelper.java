@@ -1,6 +1,7 @@
 package reghzy.advbanitem.limit;
 
 import org.bukkit.configuration.ConfigurationSection;
+import reghzy.advbanitem.config.Config;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,51 +18,126 @@ public class LimitConfigHelper {
     // --------------------------------------------------------------------------------------------------
     // ------------------------------------------ Constants ---------------------------------------------
     // --------------------------------------------------------------------------------------------------
-
-    public static final String DefaultDisallowedWorldsName   = "DefaultDisallowedWorlds";
     public static final String DefaultInvertPermissionsName  = "DefaultInvertPermissions";
-    public static final String DefaultInvertWorldName        = "DefaultInvertWorlds";
+    public static final String DefaultInvertWorldsName       = "DefaultInvertWorlds";
+    public static final String DefaultDisallowedWorldsName   = "DefaultDisallowedWorlds";
     public static final String DefaultPlacePermissionName    = "DefaultPlacePermission";
     public static final String DefaultBreakPermissionName    = "DefaultBreakPermission";
     public static final String DefaultInteractPermissionName = "DefaultInteractPermission";
+    public static final String DefaultPickupPermissionName   = "DefaultPickupPermission";
+    public static final String DefaultInvClickPermissionName = "DefaultInvClickPermission";
     public static final String DefaultPlaceMessageName       = "DefaultPlaceMessage";
     public static final String DefaultBreakMessageName       = "DefaultBreakMessage";
     public static final String DefaultInteractMessageName    = "DefaultInteractMessage";
+    public static final String DefaultNoPickupMessageName    = "DefaultNoPickupMessage";
+    public static final String DefaultNoInvClickMessageName  = "DefaultNoInvClickMessage";
 
     public static final String MetaDataName           = "MetaData";
-    public static final String DisallowedWorldsName   = "DisallowedWorlds";
     public static final String InvertPermissionsName  = "InvertPermissions";
     public static final String InvertWorldName        = "InvertWorlds";
+    public static final String DisallowedWorldsName   = "DisallowedWorlds";
     public static final String PlacePermissionName    = "PlacePermission";
     public static final String BreakPermissionName    = "BreakPermission";
     public static final String InteractPermissionName = "InteractPermission";
+    public static final String PickupPermissionName   = "PickupPermission";
+    public static final String InvClickPermissionName = "InvClickPermission";
     public static final String NoPlaceMessageName     = "NoPlaceMessage";
     public static final String NoBreakMessageName     = "NoBreakMessage";
     public static final String NoInteractMessageName  = "NoInteractMessage";
+    public static final String NoPickupMessageName    = "NoPickupMessage";
+    public static final String NoInvClickMessageName  = "NoInvClickMessage";
 
-    // technically not a constants but still
+    public static final String FallbackPlaceMessageName = "FallbackPlaceMessage";
+    public static final String FallbackBreakMessageName = "FallbackBreakMessage";
+    public static final String FallbackInteractMessageName = "FallbackInteractMessage";
+    public static final String FallbackNoPickupMessageName = "FallbackNoPickupMessage";
+    public static final String FallbackNoInvClickMessageName = "FallbackNoClickInvMessage";
+
+    // technically not a constants but still...
     public static String FallbackNoPlaceMessage = "&4You don't have permission to place this block!";
     public static String FallbackNoBreakMessage = "&4You don't have permission to break this block!";
     public static String FallbackNoInteractMessage = "&4You don't have permission to interact with this block!";
 
-    // ##################################################################################################
+    // ##############################################################################################
 
-    // --------------------------------------------------------------------------------------------------
-    // ##################################### Configuration sections #####################################
-    // --------------------------------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------
+    // ##################################### Configuration sections #################################
+    // ----------------------------------------------------------------------------------------------
 
     public static ConfigurationSection getMetadataSection(ConfigurationSection section) {
         return section.getConfigurationSection(MetaDataName);
     }
 
-    // ##################################################################################################
+    // ##############################################################################################
 
+    // ----------------------------------------------------------------------------------------------
+    // ############################ BlockLimiter (aka default stuff) ################################
+    // ----------------------------------------------------------------------------------------------
 
-    // --------------------------------------------------------------------------------------------------
-    // ############################### MetaLimits (aka real limits stuff) ###############################
-    // --------------------------------------------------------------------------------------------------
+    // ########################################## Getters ###########################################
 
-    // ---------------------------------------- Getters ----------------------------------------
+    public static List<String> getDefaultDisallowedWorlds(ConfigurationSection section) {
+        List<String> worlds = section.getStringList(DefaultDisallowedWorldsName);
+        if (worlds == null || worlds.isEmpty())
+            return new ArrayList<String>(0);
+        return worlds;
+    }
+
+    public static boolean getDefaultInvertPermissions(ConfigurationSection section) {
+        return section.getBoolean(DefaultInvertPermissionsName, false);
+    }
+
+    public static boolean getDefaultInvertWorlds(ConfigurationSection section) {
+        return section.getBoolean(DefaultInvertWorldsName, false);
+    }
+
+    public static String getDefaultPlacePermission(ConfigurationSection section) {
+        return section.getString(DefaultPlacePermissionName, null);
+    }
+
+    public static String getDefaultBreakPermission(ConfigurationSection section) {
+        return section.getString(DefaultBreakPermissionName, null);
+    }
+
+    public static String getDefaultInteractPermission(ConfigurationSection section) {
+        return section.getString(DefaultInteractPermissionName, null);
+    }
+
+    public static String getDefaultPickupPermission(ConfigurationSection section) {
+        return section.getString(DefaultPickupPermissionName, null);
+    }
+
+    public static String getDefaultInvClickPermission(ConfigurationSection section) {
+        return section.getString(DefaultInvClickPermissionName, null);
+    }
+
+    public static String getDefaultPlaceMessage(ConfigurationSection section) {
+        return section.getString(DefaultPlaceMessageName, FallbackNoPlaceMessage);
+    }
+
+    public static String getDefaultBreakMessage(ConfigurationSection section) {
+        return section.getString(DefaultBreakMessageName, FallbackNoBreakMessage);
+    }
+
+    public static String getDefaultInteractMessage(ConfigurationSection section) {
+        return section.getString(DefaultInteractMessageName, FallbackNoInteractMessage);
+    }
+
+    public static String getDefaultNoPickupMessage(ConfigurationSection section) {
+        return section.getString(DefaultNoPickupMessageName, null);
+    }
+
+    public static String getDefaultNoInvClickMessage(ConfigurationSection section) {
+        return section.getString(DefaultNoInvClickMessageName, null);
+    }
+
+    // ##############################################################################################
+
+    // ----------------------------------------------------------------------------------------------
+    // ############################### MetaLimits (aka real limits stuff) ###########################
+    // ----------------------------------------------------------------------------------------------
+
+    // ---------------------------------------- Getters ---------------------------------------------
 
     public static List<String> getDisallowedWorlds(ConfigurationSection section, List<String> defaultWorlds) {
         List<String> worlds = section.getStringList(DisallowedWorldsName);
@@ -90,6 +166,14 @@ public class LimitConfigHelper {
         return section.getString(InteractPermissionName, defaultValue);
     }
 
+    public static String getPickupPermission(ConfigurationSection section, String defaultValue) {
+        return section.getString(PickupPermissionName, defaultValue);
+    }
+
+    public static String getInvClickPermission(ConfigurationSection section, String defaultValue) {
+        return section.getString(InvClickPermissionName, defaultValue);
+    }
+
     public static String getNoPlaceMessage(ConfigurationSection section, String defaultValue) {
         return section.getString(NoPlaceMessageName, defaultValue);
     }
@@ -102,54 +186,21 @@ public class LimitConfigHelper {
         return section.getString(NoInteractMessageName, defaultValue);
     }
 
-    // ##############################################################################################
-
-    // ----------------------------------------------------------------------------------------------
-    // ############################ BlockLimiter (aka default stuff) ################################
-    // ----------------------------------------------------------------------------------------------
-
-    // ########################################## Getters ###########################################
-    public static List<String> getDefaultDisallowedWorlds(ConfigurationSection section) {
-        List<String> worlds = section.getStringList(DefaultDisallowedWorldsName);
-        if (worlds == null || worlds.isEmpty())
-            return new ArrayList<String>(0);
-        return worlds;
+    public static String getNoPickupMessage(ConfigurationSection section, String defaultValue) {
+        return section.getString(NoPickupMessageName, defaultValue);
     }
 
-    public static boolean getDefaultInvertPermissions(ConfigurationSection section) {
-        return section.getBoolean(DefaultInvertPermissionsName, false);
-    }
-
-    public static boolean getDefaultInvertWorlds(ConfigurationSection section) {
-        return section.getBoolean(DefaultInvertWorldName, false);
-    }
-
-    public static String getDefaultPlacePermission(ConfigurationSection section) {
-        return section.getString(DefaultPlacePermissionName, null);
-    }
-
-    public static String getDefaultBreakPermission(ConfigurationSection section) {
-        return section.getString(DefaultBreakPermissionName, null);
-    }
-
-    public static String getDefaultInteractPermission(ConfigurationSection section) {
-        return section.getString(DefaultInteractPermissionName, null);
-    }
-
-    public static String getDefaultPlaceMessage(ConfigurationSection section) {
-        return section.getString(DefaultPlaceMessageName, FallbackNoPlaceMessage);
-    }
-
-    public static String getDefaultBreakMessage(ConfigurationSection section) {
-        return section.getString(DefaultBreakMessageName, FallbackNoBreakMessage);
-    }
-
-    public static String getDefaultInteractMessage(ConfigurationSection section) {
-        return section.getString(DefaultInteractMessageName, FallbackNoInteractMessage);
+    public static String getNoInvClickMessage(ConfigurationSection section, String defaultValue) {
+        return section.getString(NoInvClickMessageName, defaultValue);
     }
 
     // ##############################################################################################
 
+    public static void reloadMainConfigInfo(Config config) {
+        FallbackNoPlaceMessage = config.getString(FallbackPlaceMessageName, "&4You don't have permission to place this block!");
+        FallbackNoBreakMessage = config.getString(FallbackBreakMessageName, "&4You don't have permission to break this block!");
+        FallbackNoInteractMessage = config.getString(FallbackInteractMessageName, "&4You don't have permission to interact with this block!");
+    }
 
     // ########################################## Setters ###########################################
 

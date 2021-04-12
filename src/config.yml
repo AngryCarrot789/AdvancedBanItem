@@ -32,9 +32,17 @@ BypassWorldPermission: advbanitem.bypass.world
 # is disabled in the world (or if you dont have world bypass perms), you CAN NOT place the block.
 BypassPermsPermission: advbanitem.bypass.perms
 
-# the default messages that are used if a block limit's metadata
-# has no message, and if the block limit has no default message
+# allows players to drop a banned item (that is stuck in their inventory if NoInvClickMessage is true in the limits.yml)
+# by pressing q
+AllowDropFromInventory: true
+
+# the default variables that are used if a block limit doesn't specify
+# default values, and if the meta limit has no values
 # these are the final fallback messages basically
-DefaultNoPlaceMessage: '&4You dont have permission to place this block!'
-DefaultNoBreakMessage: '&4You dont have permission to break this block!'
-DefaultNoInteractMessage: '&4You dont have permission to interact with this block!'
+FallbackPlaceMessage: '&4You dont have permission to place this block!'
+FallbackBreakMessage: '&4You dont have permission to break this block!'
+FallbackInteractMessage: '&4You dont have permission to interact with this block!'
+# whether to stop players from picking up banned items if not specified
+FallbackDisablePickup: false
+# whether to stop players from clicking banned items in their inventory
+FallbackCancelClickInv: false

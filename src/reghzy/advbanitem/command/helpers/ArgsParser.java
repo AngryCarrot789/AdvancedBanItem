@@ -174,10 +174,10 @@ public final class ArgsParser {
      * </p>
      */
     public static String[] extractArrayOffset(String[] array, int startIndex) {
-        if (startIndex == 0) {
+        if (startIndex <= 0) {
             return array;
         }
-        if (array == null || startIndex < 0 || (startIndex >= array.length)) {
+        if (array == null || startIndex >= array.length) {
             return null;
         }
 

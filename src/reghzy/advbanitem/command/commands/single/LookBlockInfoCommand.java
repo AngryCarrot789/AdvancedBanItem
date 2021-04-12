@@ -42,9 +42,9 @@ public class LookBlockInfoCommand implements ExecutableCommand {
             logger.logInfo("You're not looking at anything, just air. Add a distant on the end of the command to look further");
         }
         else {
-            logger.logInfo("Block ID: " + ChatColor.GREEN + block.getType().getId() + ChatColor.GOLD +
+            logger.logInfo("Block ID: " + ChatColor.GREEN + block.getTypeId() + ChatColor.GOLD +
                            ", Block Data: " + ChatColor.LIGHT_PURPLE + block.getData() + ChatColor.GOLD + ". " +
-                           ChatColor.GREEN + block.getType().getId() + ":" + block.getData());
+                           ChatColor.GREEN + block.getTypeId() + ":" + block.getData());
         }
     }
 }

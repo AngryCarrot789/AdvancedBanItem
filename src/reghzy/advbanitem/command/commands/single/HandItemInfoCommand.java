@@ -34,9 +34,9 @@ public class HandItemInfoCommand implements ExecutableCommand {
             logger.logInfoPrefix("You're not holding anything :/");
         }
         else {
-            logger.logInfo("ID: " + ChatColor.GREEN + block.getType().getId() + ChatColor.GOLD +
+            logger.logInfo("ID: " + ChatColor.GREEN + block.getTypeId() + ChatColor.GOLD +
                            ", Data: " + ChatColor.LIGHT_PURPLE + block.getData().getData() + ChatColor.GOLD + ". " +
-                           ChatColor.GREEN + block.getType().getId() + ":" + block.getData());
+                           ChatColor.GREEN + block.getTypeId() + ":" + block.getData());
         }
     }
 }

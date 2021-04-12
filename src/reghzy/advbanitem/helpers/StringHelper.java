@@ -1,10 +1,61 @@
 package reghzy.advbanitem.helpers;
 
-import com.sun.xml.internal.ws.client.SenderException;
-
 public class StringHelper {
     public boolean isEmpty(String string) {
         return string == null || string.isEmpty();
+    }
+
+    /**
+     * Parses integers without throwing exceptions, simply returns null if it failed to parse (more efficient, no extra class creation on failure to parse)
+     */
+    public static Integer parseInteger(String value) {
+        int radix = 10;
+        if (value == null) {
+            return null;
+        }
+
+        int result = 0;
+        boolean isNegative = false;
+        int i = 0, len = value.length();
+        int limit = -Integer.MAX_VALUE;
+        int radixMinLimit;
+        int digit;
+
+        if (len > 0) {
+            char firstChar = value.charAt(0);
+            if (firstChar < '0') { // Possible leading "+" or "-"
+                if (firstChar == '-') {
+                    isNegative = true;
+                    limit = Integer.MIN_VALUE;
+                }
+                else if (firstChar != '+')
+                    return null;
+
+                if (len == 1) // Cannot have lone "+" or "-"
+                    return null;
+                i++;
+            }
+            radixMinLimit = limit / radix;
+            while (i < len) {
+                // Accumulating negatively avoids surprises near MAX_VALUE
+                digit = Character.digit(value.charAt(i++), radix);
+                if (digit < 0) {
+                    return null;
+                }
+                if (result < radixMinLimit) {
+                    return null;
+                }
+                result *= radix;
+                if (result < limit + digit) {
+                    return null;
+                }
+                result -= digit;
+            }
+        }
+        else {
+            return null;
+        }
+        return isNegative ? result : -result;
     }
 
     public static String repeat(char repeat, int count) {
@@ -71,5 +122,14 @@ public class StringHelper {
                 return true;
         }
         return false;
+    }
+
+    public static int countChar(String string, char character) {
+        int count = 0;
+        for (int i = 0; i < string.length(); i++) {
+            if (string.charAt(i) == character)
+                count++;
+        }
+        return count;
     }
 }

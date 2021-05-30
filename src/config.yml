@@ -42,7 +42,3 @@ AllowDropFromInventory: true
 FallbackPlaceMessage: '&4You dont have permission to place this block!'
 FallbackBreakMessage: '&4You dont have permission to break this block!'
 FallbackInteractMessage: '&4You dont have permission to interact with this block!'
-# whether to stop players from picking up banned items if not specified
-FallbackDisablePickup: false
-# whether to stop players from clicking banned items in their inventory
-FallbackCancelClickInv: false

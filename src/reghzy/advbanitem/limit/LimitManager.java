@@ -3,6 +3,7 @@ package reghzy.advbanitem.limit;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.craftbukkit.v1_6_R3.inventory.CraftItemStack;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -14,6 +15,7 @@ import reghzy.advbanitem.logs.ChatLogger;
 import reghzy.advbanitem.permissions.PermissionsHelper;
 
 import java.util.HashMap;
+import java.util.UnknownFormatConversionException;
 
 public class LimitManager {
     private final HashMap<Integer, BlockLimiter> blockLimiters;
@@ -130,6 +132,15 @@ public class LimitManager {
         if (playerBypassesChecks(player))
             return false;
 
+        if (meta.useNbt) {
+            if (meta.tryNbtMatchTree(block).equals(NBTMatchResult.NBT_MATCH_SUCCESS)) {
+                if (meta.cancelOnNbtMatch) {
+                    sendDenyMessage(player, meta.noBreakMessage, meta);
+                    return true;
+                }
+            }
+        }
+
         if (meta.canBreak(player))
             return false;
 
@@ -150,6 +161,15 @@ public class LimitManager {
         if (playerBypassesChecks(player))
             return false;
 
+        if (meta.useNbt) {
+            if (meta.tryNbtMatchTree(block).equals(NBTMatchResult.NBT_MATCH_SUCCESS)) {
+                if (meta.cancelOnNbtMatch) {
+                    sendDenyMessage(player, meta.noBreakMessage, meta);
+                    return true;
+                }
+            }
+        }
+
         if (meta.canPlace(player))
             return false;
 
@@ -159,7 +179,31 @@ public class LimitManager {
 
     // returns true if the event should be cancelled
     public boolean shouldCancelInteract(Player player, Block block) {
-        return shouldCancelInteract(player, block.getTypeId(), block.getData());
+        BlockLimiter limiter = blockLimiters.get(block.getTypeId());
+        if (limiter == null)
+            return false;
+
+        MetaLimit meta = limiter.getMetaLimit(block.getData());
+        if (meta == null)
+            return false;
+
+        if (playerBypassesChecks(player))
+            return false;
+
+        if (meta.useNbt) {
+            if (meta.tryNbtMatchTree(block).equals(NBTMatchResult.NBT_MATCH_SUCCESS)) {
+                if (meta.cancelOnNbtMatch) {
+                    sendDenyMessage(player, meta.noBreakMessage, meta);
+                    return true;
+                }
+            }
+        }
+
+        if (meta.canInteract(player))
+            return false;
+
+        sendDenyMessage(player, meta.noInteractMessage, meta);
+        return true;
     }
 
     // returns true if the event should be cancelled
@@ -182,6 +226,34 @@ public class LimitManager {
         return true;
     }
 
+    public boolean shouldCancelInteract(Player player, ItemStack itemStack) {
+        BlockLimiter limiter = blockLimiters.get(itemStack.getTypeId());
+        if (limiter == null)
+            return false;
+
+        MetaLimit meta = limiter.getMetaLimit(itemStack.getData().getData());
+        if (meta == null)
+            return false;
+
+        if (playerBypassesChecks(player))
+            return false;
+
+        if (meta.useNbt) {
+            if (meta.tryNbtMatchTree(itemStack).equals(NBTMatchResult.NBT_MATCH_SUCCESS)) {
+                if (meta.cancelOnNbtMatch) {
+                    sendDenyMessage(player, meta.noBreakMessage, meta);
+                    return true;
+                }
+            }
+        }
+
+        if (meta.canPickupItem(player))
+            return false;
+
+        sendDenyMessage(player, meta.noInteractMessage, meta);
+        return true;
+    }
+
     public boolean shouldCancelInventoryClick(Player player, ItemStack itemStack) {
         BlockLimiter limiter = blockLimiters.get(itemStack.getTypeId());
         if (limiter == null)
@@ -193,6 +265,15 @@ public class LimitManager {
 
         if (playerBypassesChecks(player))
             return false;
+
+        if (meta.useNbt) {
+            if (meta.tryNbtMatchTree(itemStack).equals(NBTMatchResult.NBT_MATCH_SUCCESS)) {
+                if (meta.cancelOnNbtMatch) {
+                    sendDenyMessage(player, meta.noBreakMessage, meta);
+                    return true;
+                }
+            }
+        }
 
         if (meta.canClickInventory(player))
             return false;
@@ -213,6 +294,18 @@ public class LimitManager {
 
         if (playerBypassesChecks(player))
             return false;
+
+        if (meta.useNbt) {
+            ItemStack itemStack = item.getItemStack();
+            if (itemStack != null) {
+                if (meta.tryNbtMatchTree(itemStack).equals(NBTMatchResult.NBT_MATCH_SUCCESS)) {
+                    if (meta.cancelOnNbtMatch) {
+                        sendDenyMessage(player, meta.noBreakMessage, meta);
+                        return true;
+                    }
+                }
+            }
+        }
 
         if (meta.canPickupItem(player))
             return false;

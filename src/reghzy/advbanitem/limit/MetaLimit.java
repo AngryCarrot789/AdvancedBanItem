@@ -1,13 +1,22 @@
 package reghzy.advbanitem.limit;
 
+import net.minecraft.server.v1_6_R3.NBTTagCompound;
+import net.minecraft.server.v1_6_R3.TileEntity;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.craftbukkit.v1_6_R3.CraftWorld;
+import org.bukkit.craftbukkit.v1_6_R3.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import reghzy.advbanitem.command.commands.single.DisplayLimiterCommand;
 import reghzy.advbanitem.helpers.StringHelper;
 import reghzy.advbanitem.logs.ChatFormat;
+import reghzy.advbanitem.logs.ChatLogger;
 import reghzy.advbanitem.permissions.PermissionsHelper;
 
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MetaLimit {
@@ -16,6 +25,10 @@ public class MetaLimit {
     public final List<String> disallowedWorlds;
     public final boolean invertPermissions;
     public final boolean invertWorlds;
+    public final boolean useNbt;
+    public final boolean cancelOnNbtMatch;
+    public final List<String> nbtFiltersRaw;
+    public final List<NBTNodeMatcher> nbtMatchers;
     public final String placePermission;
     public final String breakPermission;
     public final String interactPermission;
@@ -29,6 +42,7 @@ public class MetaLimit {
 
     public MetaLimit(int id, int metadata, List<String> disallowedWorlds,
                      boolean invertPermissions, boolean invertWorlds,
+                     boolean useNbt, List<String> nbtFiltersRaw, boolean cancelOnNbtMatch,
                      String placePermission, String breakPermission, String interactPermission,
                      String pickupPermission, String invClickPermission,
                      String noPlaceMessage, String noBreakMessage, String noInteractMessage,
@@ -38,6 +52,9 @@ public class MetaLimit {
         this.disallowedWorlds   = disallowedWorlds;
         this.invertPermissions  = invertPermissions;
         this.invertWorlds       = invertWorlds;
+        this.useNbt = useNbt;
+        this.nbtFiltersRaw = nbtFiltersRaw;
+        this.cancelOnNbtMatch = cancelOnNbtMatch;
         this.placePermission    = placePermission;
         this.breakPermission    = breakPermission;
         this.interactPermission = interactPermission;
@@ -49,43 +66,77 @@ public class MetaLimit {
         this.noPickupMessage = noPickupMessage;
         this.noInvClickMessage = noInvClickMessage;
 
+        this.nbtMatchers = new ArrayList<NBTNodeMatcher>();
+        for(String nbtFilter : this.nbtFiltersRaw) {
+            try {
+                this.nbtMatchers.add(new NBTNodeMatcher(nbtFilter));
+            }
+            catch (Exception e) {
+                ChatLogger.logConsole("Exception loading NBT Matcher '" + nbtFilter + "': " + e.getMessage());
+            }
+        }
+
         WorldLookup.addDisallowed(this.id, this.metadata, this.disallowedWorlds);
     }
 
     public boolean canPlace(Player player) {
-        if (allowsWorld(player.getWorld())) {
-            return hasPermission(player, placePermission);
-        }
-
-        return false;
+        return hasPermissionAndAllowsWorld(player, placePermission);
     }
 
     public boolean canBreak(Player player) {
-        if (allowsWorld(player.getWorld())) {
-            return hasPermission(player, breakPermission);
-        }
-
-        return false;
+        return hasPermissionAndAllowsWorld(player, breakPermission);
     }
 
     public boolean canInteract(Player player) {
-        if (allowsWorld(player.getWorld())) {
-            return hasPermission(player, interactPermission);
-        }
-
-        return false;
+        return hasPermissionAndAllowsWorld(player, interactPermission);
     }
 
     public boolean canClickInventory(Player player) {
-        if (allowsWorld(player.getWorld())) {
-            return hasPermission(player, invClickPermission);
-        }
-        return false;
+        return hasPermissionAndAllowsWorld(player, invClickPermission);
     }
 
     public boolean canPickupItem(Player player) {
+        return hasPermissionAndAllowsWorld(player, pickupPermission);
+    }
+
+    public NBTMatchResult tryNbtMatchTree(Block block) {
+        TileEntity tileEntity = ((((CraftWorld) block.getWorld()).getHandle().getTileEntity(block.getX(), block.getY(), block.getZ())));
+        if (tileEntity == null) {
+            return NBTMatchResult.TILE_ENTITY_NOT_FOUND;
+        }
+
+        NBTTagCompound nbt = new NBTTagCompound();
+        tileEntity.b(nbt);
+
+        return tryNbtMatchTree(nbt);
+    }
+
+    public NBTMatchResult tryNbtMatchTree(ItemStack bukkitItemStack) {
+        net.minecraft.server.v1_6_R3.ItemStack nmsItemStack = CraftItemStack.asNMSCopy(bukkitItemStack);
+        if (nmsItemStack == null) {
+            return NBTMatchResult.TILE_ENTITY_NOT_FOUND;
+        }
+
+        if (!nmsItemStack.hasTag()) {
+            return NBTMatchResult.NBT_TREE_NOT_FOUND;
+        }
+
+        return tryNbtMatchTree(nmsItemStack.getTag());
+    }
+
+    public NBTMatchResult tryNbtMatchTree(NBTTagCompound nbt) {
+        for (NBTNodeMatcher matcher : this.nbtMatchers) {
+            if (matcher.matchNbtTree(nbt).equals(NBTMatchResult.NBT_MATCH_SUCCESS)) {
+                return NBTMatchResult.NBT_MATCH_SUCCESS;
+            }
+        }
+
+        return NBTMatchResult.NBT_MATCH_FAILED;
+    }
+
+    public boolean hasPermissionAndAllowsWorld(Player player, String permission) {
         if (allowsWorld(player.getWorld())) {
-            return hasPermission(player, pickupPermission);
+            return hasPermission(player, permission);
         }
         return false;
     }

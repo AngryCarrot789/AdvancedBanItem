@@ -43,7 +43,7 @@ public class PlayerListeners extends BaseListener implements Listener {
                 if (item == null)
                     return;
 
-                if (limitManager.shouldCancelInteract(event.getPlayer(), item.getTypeId(), item.getData().getData())) {
+                if (limitManager.shouldCancelInteract(event.getPlayer(), item)) {
                     event.setCancelled(true);
                 }
             }
@@ -51,7 +51,7 @@ public class PlayerListeners extends BaseListener implements Listener {
         else if (action == Action.LEFT_CLICK_BLOCK || action == Action.RIGHT_CLICK_BLOCK) {
             ItemStack item = event.getItem();
             if (item != null) {
-                if (limitManager.shouldCancelInteract(event.getPlayer(), item.getTypeId(), item.getData().getData())) {
+                if (limitManager.shouldCancelInteract(event.getPlayer(), item)) {
                     event.setCancelled(true);
                     return;
                 }

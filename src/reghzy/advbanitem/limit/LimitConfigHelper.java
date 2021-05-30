@@ -18,8 +18,11 @@ public class LimitConfigHelper {
     // --------------------------------------------------------------------------------------------------
     // ------------------------------------------ Constants ---------------------------------------------
     // --------------------------------------------------------------------------------------------------
+    public static final String DefaultProcessPermsFirstName  = "DefaultProcessPermissionsFirst";
     public static final String DefaultInvertPermissionsName  = "DefaultInvertPermissions";
     public static final String DefaultInvertWorldsName       = "DefaultInvertWorlds";
+    public static final String DefaultUseNBTName             = "DefaultUseNBT";
+    public static final String DefaultNBTFiltersName         = "DefaultNBTFilters";
     public static final String DefaultDisallowedWorldsName   = "DefaultDisallowedWorlds";
     public static final String DefaultPlacePermissionName    = "DefaultPlacePermission";
     public static final String DefaultBreakPermissionName    = "DefaultBreakPermission";
@@ -33,9 +36,13 @@ public class LimitConfigHelper {
     public static final String DefaultNoInvClickMessageName  = "DefaultNoInvClickMessage";
 
     public static final String MetaDataName           = "MetaData";
+    public static final String ProcessPermsFirstName  = "ProcessPermissionsFirst";
     public static final String InvertPermissionsName  = "InvertPermissions";
     public static final String InvertWorldName        = "InvertWorlds";
+    public static final String UseNBTName             = "UseNBT";
     public static final String DisallowedWorldsName   = "DisallowedWorlds";
+    public static final String NBTFiltersName         = "NBTFilters";
+    public static final String CancelOnNBTMatchName   = "CancelEventOnNBTMatch";
     public static final String PlacePermissionName    = "PlacePermission";
     public static final String BreakPermissionName    = "BreakPermission";
     public static final String InteractPermissionName = "InteractPermission";
@@ -83,12 +90,23 @@ public class LimitConfigHelper {
         return worlds;
     }
 
+    public static List<String> getDefaultNbtFilters(ConfigurationSection section) {
+        List<String> nbtFilters = section.getStringList(DefaultNBTFiltersName);
+        if (nbtFilters == null || nbtFilters.isEmpty())
+            return new ArrayList<String>(0);
+        return nbtFilters;
+    }
+
     public static boolean getDefaultInvertPermissions(ConfigurationSection section) {
         return section.getBoolean(DefaultInvertPermissionsName, false);
     }
 
     public static boolean getDefaultInvertWorlds(ConfigurationSection section) {
         return section.getBoolean(DefaultInvertWorldsName, false);
+    }
+
+    public static boolean getDefaultUseNBT(ConfigurationSection section) {
+        return section.getBoolean(DefaultUseNBTName, false);
     }
 
     public static String getDefaultPlacePermission(ConfigurationSection section) {
@@ -146,12 +164,27 @@ public class LimitConfigHelper {
         return worlds;
     }
 
+    public static List<String> getNbtFilters(ConfigurationSection section, List<String> defaultFilters) {
+        List<String> filters = section.getStringList(NBTFiltersName);
+        if (filters == null || filters.isEmpty())
+            return defaultFilters;
+        return filters;
+    }
+
     public static boolean getInvertPermissions(ConfigurationSection section, boolean defaultValue) {
         return section.getBoolean(InvertPermissionsName, defaultValue);
     }
 
     public static boolean getInvertWorlds(ConfigurationSection section, boolean defaultValue) {
         return section.getBoolean(InvertWorldName, defaultValue);
+    }
+
+    public static boolean getUseNbt(ConfigurationSection section, boolean defaultValue) {
+        return section.getBoolean(UseNBTName, defaultValue);
+    }
+
+    public static boolean getCancelEventOnNBTMatch(ConfigurationSection section, boolean defaultValue) {
+        return section.getBoolean(CancelOnNBTMatchName, defaultValue);
     }
 
     public static String getPlacePermission(ConfigurationSection section, String defaultValue) {

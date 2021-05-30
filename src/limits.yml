@@ -168,9 +168,15 @@
 
 # heres another example. i could've just specified all this below in the metadata section... but oh well lol
 # default values are only supplied to the metadatas present, not -1, not 1, only 2
+
 2000:
   MetaData: { 2: { } }
-  DefaultInteractMessage: '&6The autonomous activator is limited. ask staff to place it for you'
+  # i mentioned above about default values aiming to make this non-repetitive............. hmm
+  # cant use interaction message because interactions are allowed, placing/breaking/picking up/inventory clicking is not allowed
+  DefaultBreakMessage: '&6The autonomous activator is limited. ask staff to place it for you 1'
+  DefaultPlaceMessage: '&6The autonomous activator is limited. ask staff to place it for you 2'
+  DefaultNoPickupMessage: '&6The autonomous activator is limited. ask staff to place it for you 3'
+  DefaultNoInvClickMessage: '&6The autonomous activator is limited. ask staff to place it for you 4'
   # the admin group (in my permission plugin (pex :} )) have these permissions below
   # i could've just stuffed this inside the interaction permissions, but im limiting the block not banning. players still
   # need to be able to access the block itself (right clicking), and the interaction permission would've stopped them
@@ -178,4 +184,3 @@
   DefaultBreakPermission: 'advbanitem.limit.staffblocks'
   DefaultPickupPermission: 'advbanitem.limit.staffblocks'
   DefaultInvClickPermission: 'advbanitem.limit.staffblocks'
-

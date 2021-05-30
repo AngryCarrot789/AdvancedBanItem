@@ -2,11 +2,11 @@ package reghzy.advbanitem.limit;
 
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
-import reghzy.advbanitem.AdvancedBanItem;
 import reghzy.advbanitem.helpers.StringHelper;
 import reghzy.advbanitem.logs.ChatFormat;
 import reghzy.advbanitem.logs.ChatLogger;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -67,6 +67,8 @@ public class BlockLimiter {
         List<String> defaultDisallowedWorlds = LimitConfigHelper.getDefaultDisallowedWorlds(limitedIdSection);
         boolean defaultInvertPermissions     = LimitConfigHelper.getDefaultInvertPermissions(limitedIdSection);
         boolean defaultInvertWorlds          = LimitConfigHelper.getDefaultInvertWorlds(limitedIdSection);
+        boolean defaultUseNbt                = LimitConfigHelper.getDefaultUseNBT(limitedIdSection);
+        List<String> defaultNbtFilters       = LimitConfigHelper.getDefaultNbtFilters(limitedIdSection);
         String defaultPlacePermission        = LimitConfigHelper.getDefaultPlacePermission(limitedIdSection);
         String defaultBreakPermission        = LimitConfigHelper.getDefaultBreakPermission(limitedIdSection);
         String defaultInteractPermission     = LimitConfigHelper.getDefaultInteractPermission(limitedIdSection);
@@ -84,7 +86,7 @@ public class BlockLimiter {
             metaLimits = new HashMap<Integer, MetaLimit>(1);
             metaLimits.put(-1, new MetaLimit(
                     id, -1, defaultDisallowedWorlds,
-                    defaultInvertPermissions, defaultInvertWorlds,
+                    defaultInvertPermissions, defaultInvertWorlds, false, new ArrayList<String>(), false,
                     defaultPlacePermission, defaultBreakPermission, defaultInteractPermission,
                     defaultPickupPermission == null ? defaultInteractPermission : defaultPickupPermission,
                     defaultInvClickPermission == null ? defaultInteractPermission : defaultInvClickPermission,
@@ -98,7 +100,7 @@ public class BlockLimiter {
                 metaLimits = new HashMap<Integer, MetaLimit>(1);
                 metaLimits.put(-1, new MetaLimit(
                         id, -1, defaultDisallowedWorlds,
-                        defaultInvertPermissions, defaultInvertWorlds,
+                        defaultInvertPermissions, defaultInvertWorlds, false, new ArrayList<String>(), false,
                         defaultPlacePermission, defaultBreakPermission, defaultInteractPermission,
                         defaultPickupPermission == null ? defaultInteractPermission : defaultPickupPermission,
                         defaultInvClickPermission == null ? defaultInteractPermission : defaultInvClickPermission,
@@ -120,7 +122,7 @@ public class BlockLimiter {
                     if (metaSection == null) {
                         metaLimits.put(meta, new MetaLimit(
                                 id, meta, defaultDisallowedWorlds,
-                                defaultInvertPermissions, defaultInvertWorlds,
+                                defaultInvertPermissions, defaultInvertWorlds, false, new ArrayList<String>(), false,
                                 defaultPlacePermission, defaultBreakPermission, defaultInteractPermission,
                                 defaultPickupPermission == null ? defaultInteractPermission : defaultPickupPermission,
                                 defaultInvClickPermission == null ? defaultInteractPermission : defaultInvClickPermission,
@@ -132,6 +134,9 @@ public class BlockLimiter {
                         List<String> disallowedWorlds = LimitConfigHelper.getDisallowedWorlds(metaSection, defaultDisallowedWorlds);
                         boolean invertPermissions = LimitConfigHelper.getInvertPermissions(metaSection, defaultInvertPermissions);
                         boolean invertWorlds      = LimitConfigHelper.getInvertWorlds(metaSection, defaultInvertWorlds);
+                        boolean useNbt            = LimitConfigHelper.getUseNbt(metaSection, defaultUseNbt);
+                        boolean cancelOnNbtMatch  = LimitConfigHelper.getCancelEventOnNBTMatch(metaSection, false);
+                        List<String> nbtFilters   = LimitConfigHelper.getNbtFilters(metaSection, defaultNbtFilters);
                         String placePermission    = LimitConfigHelper.getPlacePermission(metaSection, defaultPlacePermission);
                         String breakPermission    = LimitConfigHelper.getBreakPermission(metaSection, defaultBreakPermission);
                         String interactPermission = LimitConfigHelper.getInteractPermission(metaSection, defaultInteractPermission);
@@ -145,6 +150,7 @@ public class BlockLimiter {
                         metaLimits.put(meta, new MetaLimit(
                                 id, meta, disallowedWorlds,
                                 invertPermissions, invertWorlds,
+                                useNbt, nbtFilters, cancelOnNbtMatch,
                                 placePermission, breakPermission, interactPermission,
                                 pickupPermission, invClickPermission,
                                 noPlaceMessage, noBreakMessage, noInteractMessage,

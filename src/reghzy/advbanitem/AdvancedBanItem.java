@@ -1,105 +1,73 @@
 package reghzy.advbanitem;
 
-import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
-import reghzy.advbanitem.command.MainCommandExecutor;
-import reghzy.advbanitem.config.ConfigManager;
-import reghzy.advbanitem.config.FileHelper;
+import reghzy.advbanitem.command.ABICommandExecutor;
 import reghzy.advbanitem.limit.LimitConfigHelper;
 import reghzy.advbanitem.limit.LimitManager;
 import reghzy.advbanitem.listeners.BlockListeners;
 import reghzy.advbanitem.listeners.PlayerListeners;
-import reghzy.advbanitem.logs.ChatFormat;
-import reghzy.advbanitem.logs.ChatLogger;
-import reghzy.advbanitem.permissions.PermissionsHelper;
+import reghzy.mfunclagfind.command.CommandManager;
+import reghzy.mfunclagfind.command.utils.REghZyLogger;
+import reghzy.mfunclagfind.config.Config;
+import reghzy.mfunclagfind.config.ConfigLoadHandler;
+import reghzy.mfunclagfind.config.ConfigManager;
 
-public class AdvancedBanItem extends JavaPlugin implements REghZyBasePlugin {
-    private ChatLogger chatLogger = new ChatLogger(this, null);
+public class AdvancedBanItem extends JavaPlugin {
+    public static final REghZyLogger LOGGER = new REghZyLogger("§6[§4Advanced§cBanItem§6]§r");
 
-    private static AdvancedBanItem instance;
-    public static final String VERSION = "1.3.54";
-
+    private static AdvancedBanItem INSTANCE;
     private LimitManager limitManager;
     private BlockListeners blockListener;
     private PlayerListeners playerListeners;
 
-    public static final String CommandsPermission       = "advbanitem.perms.commands";
-    public static final String AddBlockPermission       = "advbanitem.perms.commands.add";
-    public static final String RemoveBlockPermission    = "advbanitem.perms.commands.remove";
-    public static final String EditBlockPermission      = "advbanitem.perms.commands.edit";
-    public static final String ReloadConfigPermission   = "advbanitem.perms.commands.reload";
-    public static final String DisplayLimiterPermission = "advbanitem.perms.commands.display";
-    public static final String LookHandInfoPermission   = "advbanitem.perms.iteminfo";
+    private ConfigManager configManager;
 
     @Override
     public void onEnable() {
-        instance = this;
-        this.chatLogger = new ChatLogger(this, null);
+        INSTANCE = this;
 
-        PermissionsHelper.init();
-
-        FileHelper.ensurePluginFolderExists(this);
-
-        this.getCommand(getCommandPrefix()).setExecutor(new MainCommandExecutor());
-
-        try {
-            ConfigManager.initialise();
-            LimitConfigHelper.reloadMainConfigInfo(ConfigManager.getMainConfig());
-            chatLogger.logPlugin("Starting Limit Manager");
-            limitManager = new LimitManager(ConfigManager.getLimitConfig());
-            chatLogger.logPlugin("Starting Block Listener");
-            blockListener = new BlockListeners(limitManager, this);
-            playerListeners = new PlayerListeners(limitManager, this);
-
-            try {
-                chatLogger.logPlugin("Loading Limit Manager Limits...");
-                init();
-                chatLogger.logPlugin("Success!");
+        this.configManager = new ConfigManager(this);
+        this.configManager.registerDefaultConfig("config", new ConfigLoadHandler() {
+            @Override
+            public void onLoaded(Config config) {
+                PlayerListeners.reloadInfoFromConfig(config);
+                LimitConfigHelper.reloadMainConfigInfo(config);
+                AdvancedBanItem.this.limitManager.loadInfoFromMainConfig(config);
             }
-            catch (Exception e) {
-                chatLogger.logPlugin("Failed to initialise Limit Manager");
-                e.printStackTrace();
-            }
+        }, null);
 
-            PlayerListeners.reloadInfoFromConfig(ConfigManager.getMainConfig());
-        }
-        catch (Exception e) {
-            this.chatLogger.logPlugin("Failed to initialise config manager. Cannot load plugin without it.\n" +
-                                      "If you have plugman installed, try using that to load this plugin again");
-            e.printStackTrace();
-        }
+        this.configManager.registerDefaultConfig("limits", new ConfigLoadHandler() {
+            @Override
+            public void onLoaded(Config config) {
+                AdvancedBanItem.this.limitManager.loadLimits(config);
+            }
+        }, null);
+
+        LOGGER.logPrefix("Starting Limit Manager");
+        limitManager = new LimitManager();
+        LOGGER.logPrefix("Starting Block Listener");
+        blockListener = new BlockListeners(limitManager, this);
+        playerListeners = new PlayerListeners(limitManager, this);
+
+        this.configManager.loadAllConfigs();
+
+        CommandManager.registerMainClass(this, "advbanitem", ABICommandExecutor.class);
     }
 
-    public void init() {
-        limitManager.loadInfoFromMainConfig(ConfigManager.getMainConfig());
-        limitManager.loadLimits();
+    @Override
+    public void onDisable() {
+        LOGGER.logPrefix("Disabled :(");
     }
 
     public LimitManager getLimitManager() {
         return this.limitManager;
     }
 
-    @Override
-    public void onDisable() {
-        chatLogger.logPlugin(getChatPrefix() + ChatFormat.red(" Disabled"));
-    }
-
-    @Override
-    public ChatLogger getChatLogger() {
-        return this.chatLogger;
-    }
-
-    @Override
-    public String getChatPrefix() {
-        return ChatColor.GOLD + "[" + ChatColor.DARK_AQUA + "Advanced" + ChatColor.RED + "BanItem" + ChatColor.GOLD + "]" + ChatColor.RESET;
-    }
-
-    @Override
-    public String getCommandPrefix() {
-        return "abi";
-    }
-
     public static AdvancedBanItem getInstance() {
-        return instance;
+        return INSTANCE;
+    }
+
+    public ConfigManager getConfigManager() {
+        return configManager;
     }
 }

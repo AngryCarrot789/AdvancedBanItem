@@ -49,5 +49,16 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$USER_HOME$/Desktop/MFuncLagFind.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="file://$MODULE_DIR$/../MFuncLagFind/src" />
+        </SOURCES>
+      </library>
+    </orderEntry>
   </component>
 </module>

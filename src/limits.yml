@@ -9,6 +9,10 @@
 #  [    MetaData (sections of IDs might contain the stuff below)
 #  [      ∟ InvertPermissions          ]   - inverts the permissions (true == (no perms = CAN place, perms = CANT place, empty perms = CANT place))
 #  [        InvertWorlds               ]   - inverts the worlds (true == disallowed becomes allowed, false == disallowed worlds)
+#  [        UseNBT                     ]   - whether to check the NBT data of both the block (tile entities only!) and itemstacks
+#  [        NBTFilters                 ]   - the filters. this is like permissionsex, using dots, which go into tag compounds and lists. see below
+#  [        CancelEventOnNBTMatch      ]   - Stops players from breaking/placing/etc things if the NBT matches a filter
+#  [        DestroyOnCancel            ]   - destroys the item if the event is cancelled (aka if the item is banned)
 #  [        DisallowedWorlds           ]   - list of worlds that this block is not allowed in
 #  [        PlacePermission            ]   - permission required to place this block. if not specified, the block can be placed by anyone
 #  [        BreakPermission            ]   - permission required to break this block. if not specified, the block can be broken by anyone
@@ -22,6 +26,9 @@
 #  [        NoInvClickMessage          ]   - the messages to be sent to the player if they do NOT have permission to click/moved this item in their inventory
 #  [    DefaultInvertPermissions    ]
 #  [    DefaultInvertWorlds         ]
+#  [    DefaultUseNBT               ]
+#  [    DefaultNBTFilters           ]
+#  [    DefaultDestroyOnCancel      ]
 #  [    DefaultDisallowedWorlds     ]
 #  [    DefaultPlacePermission      ]
 #  [    DefaultBreakPermission      ]
@@ -63,6 +70,28 @@
 #          # 'world' is disallowed, all other worlds are allowed. but if InvertWorlds is true,
 #          # only 'world' is allowed, all others aren't allowed
 #          InvertWorlds: false
+#
+#          # this will do extra checks with the NBT data of the TileEntity and itemstacks
+#          UseNBT: true
+#
+#          # NBTFilters will go down the NBT data (like a tree). they start at the top level (aka itemstack NBT)
+#          # and match any NBT within that tag compound (in this case, tank). tank is anothre NBTTagCompound,
+#          # so next it will check that one for "FluidName". it detects that fluidname is the last place to
+#          # check (because its before the equals (=) sign), so it will check the value of FluidName
+#          # using the '=' char will match the extact words (not ignoring cases). using '~' will check if it contains the value below
+#          # this plugin doesn't have a command for seeing NBT data so you'd have to find one that does :(
+#          # recap: 'tank' is an NBTTagCompound, 'FluidName' is a String. the value doesn'#t have to be a string, it can be an int, long, etc
+#          # also, if you want to check indexes of an int or byte array, put a number (e.g. nbtlistname.0.value=hello)
+#          # NBTTagLists are a bit different... instead of just an index, put a * before. however you dont have to use indexes,
+#          # it will go through the list and match a name (e.g. if 'tank' was a list, it would look for an NBTBase with 'FluidName' name)
+#          # the same applied with NBTTagCompound indexes, use *index to look at an index (just incase it has no name!)
+#          NBTFilters:
+#           - 'tank.FluidName=pyrotheum'
+#           # - 'tank.FluidName~pyro'
+#
+#          # Will cancel the event if the NBT data matches. if true, if the NBT matches, it stops players placing/breaking/etc
+#          # if false, it will then go to check if the player can actually place the ID:Meta
+#          CancelEventOnNBTMatch: true
 #
 #          # these permissions can be whatever you want, they could all be the same, or all different names, etc
 #
@@ -161,6 +190,16 @@
 # this bans the item ID 9065 but only with the metadata 31, 32, 33, 34, 35 and 36 (because these items are laggy)
 # you can probably see how useful default values are... having to supply the invert permission and interact messages for
 # each metadata section would be a tad bit repetitive, and thats what default values aim to solve :))
+
+2527:
+  MetaData:
+    -1:
+      UseNBT: true
+      CancelEventOnNBTMatch: true
+      NBTFilters:
+        - 'tank.FluidName=pyrotheum' # will ban the block
+        - 'Fluid.FluidName=pyrotheum' # will ban the itemstack, placed has different NBT data
+
 9065:
   MetaData: { 31: { }, 32: { }, 33: { }, 34: { }, 35: { }, 36: { } }
   DefaultInvertPermissions: true

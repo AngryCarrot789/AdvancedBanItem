@@ -9,24 +9,26 @@ import org.bukkit.craftbukkit.v1_6_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_6_R3.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import reghzy.advbanitem.command.ABICommandExecutor;
 import reghzy.advbanitem.command.commands.single.DisplayLimiterCommand;
-import reghzy.advbanitem.helpers.StringHelper;
-import reghzy.advbanitem.logs.ChatFormat;
-import reghzy.advbanitem.logs.ChatLogger;
-import reghzy.advbanitem.permissions.PermissionsHelper;
+import reghzy.mfunclagfind.permissions.PermissionsHelper;
+import reghzy.mfunclagfind.utils.text.StringHelper;
 
-import javax.xml.parsers.DocumentBuilderFactory;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 public class MetaLimit {
     public final int id;
     public final int metadata;
     public final List<String> disallowedWorlds;
+    public final List<Pattern> disallowedWorldFilters;
     public final boolean invertPermissions;
     public final boolean invertWorlds;
     public final boolean useNbt;
     public final boolean cancelOnNbtMatch;
+    public final boolean destroyOnCancel;
     public final List<String> nbtFiltersRaw;
     public final List<NBTNodeMatcher> nbtMatchers;
     public final String placePermission;
@@ -43,40 +45,56 @@ public class MetaLimit {
     public MetaLimit(int id, int metadata, List<String> disallowedWorlds,
                      boolean invertPermissions, boolean invertWorlds,
                      boolean useNbt, List<String> nbtFiltersRaw, boolean cancelOnNbtMatch,
+                     boolean destroyOnCancel,
                      String placePermission, String breakPermission, String interactPermission,
                      String pickupPermission, String invClickPermission,
                      String noPlaceMessage, String noBreakMessage, String noInteractMessage,
                      String noPickupMessage, String noInvClickMessage) {
-        this.id                 = id;
-        this.metadata           = metadata;
-        this.disallowedWorlds   = disallowedWorlds;
-        this.invertPermissions  = invertPermissions;
-        this.invertWorlds       = invertWorlds;
+        this.id = id;
+        this.metadata = metadata;
+        this.disallowedWorlds = disallowedWorlds;
+        this.invertPermissions = invertPermissions;
+        this.invertWorlds = invertWorlds;
         this.useNbt = useNbt;
         this.nbtFiltersRaw = nbtFiltersRaw;
         this.cancelOnNbtMatch = cancelOnNbtMatch;
-        this.placePermission    = placePermission;
-        this.breakPermission    = breakPermission;
+        this.destroyOnCancel = destroyOnCancel;
+        this.placePermission = placePermission;
+        this.breakPermission = breakPermission;
         this.interactPermission = interactPermission;
         this.pickupPermission = pickupPermission;
         this.invClickPermission = invClickPermission;
-        this.noPlaceMessage     = noPlaceMessage;
-        this.noBreakMessage     = noBreakMessage;
-        this.noInteractMessage  = noInteractMessage;
+        this.noPlaceMessage = noPlaceMessage;
+        this.noBreakMessage = noBreakMessage;
+        this.noInteractMessage = noInteractMessage;
         this.noPickupMessage = noPickupMessage;
         this.noInvClickMessage = noInvClickMessage;
 
         this.nbtMatchers = new ArrayList<NBTNodeMatcher>();
-        for(String nbtFilter : this.nbtFiltersRaw) {
+        for (String nbtFilter : this.nbtFiltersRaw) {
             try {
                 this.nbtMatchers.add(new NBTNodeMatcher(nbtFilter));
             }
             catch (Exception e) {
-                ChatLogger.logConsole("Exception loading NBT Matcher '" + nbtFilter + "': " + e.getMessage());
+                ABICommandExecutor.ABILogger.logPrefix("Exception loading NBT Matcher '" + nbtFilter + "': " + e.getMessage());
             }
         }
 
-        WorldLookup.addDisallowed(this.id, this.metadata, this.disallowedWorlds);
+        this.disallowedWorldFilters = new ArrayList<Pattern>(disallowedWorlds.size());
+        for(String disallowed : disallowedWorlds) {
+            Pattern pattern;
+            try {
+                pattern = Pattern.compile(disallowed);
+            }
+            catch (PatternSyntaxException e) {
+                ABICommandExecutor.ABILogger.logPrefix("Exception loading RegEx pattern '" + disallowed + "': " + e.getMessage());
+                continue;
+            }
+
+            this.disallowedWorldFilters.add(pattern);
+        }
+
+        // WorldLookup.addDisallowed(this.id, this.metadata, this.disallowedWorlds);
     }
 
     public boolean canPlace(Player player) {
@@ -102,7 +120,7 @@ public class MetaLimit {
     public NBTMatchResult tryNbtMatchTree(Block block) {
         TileEntity tileEntity = ((((CraftWorld) block.getWorld()).getHandle().getTileEntity(block.getX(), block.getY(), block.getZ())));
         if (tileEntity == null) {
-            return NBTMatchResult.TILE_ENTITY_NOT_FOUND;
+            return NBTMatchResult.NBT_SOURCE_NOT_FOUND;
         }
 
         NBTTagCompound nbt = new NBTTagCompound();
@@ -114,7 +132,7 @@ public class MetaLimit {
     public NBTMatchResult tryNbtMatchTree(ItemStack bukkitItemStack) {
         net.minecraft.server.v1_6_R3.ItemStack nmsItemStack = CraftItemStack.asNMSCopy(bukkitItemStack);
         if (nmsItemStack == null) {
-            return NBTMatchResult.TILE_ENTITY_NOT_FOUND;
+            return NBTMatchResult.NBT_SOURCE_NOT_FOUND;
         }
 
         if (!nmsItemStack.hasTag()) {
@@ -138,6 +156,7 @@ public class MetaLimit {
         if (allowsWorld(player.getWorld())) {
             return hasPermission(player, permission);
         }
+
         return false;
     }
 
@@ -154,30 +173,34 @@ public class MetaLimit {
     }
 
     public boolean allowsWorld(World world) {
-        if (this.invertWorlds) {
-            return WorldLookup.containsWorld(this.id, this.metadata, world.getName());
+        if (this.disallowedWorldFilters.isEmpty()) {
+            return !this.invertWorlds;
         }
-        else {
-            // if it contains it means its NOT ALLOWED
-            return !WorldLookup.containsWorld(this.id, this.metadata, world.getName());
+
+        for (Pattern pattern : this.disallowedWorldFilters) {
+            if (pattern.matcher(world.getName()).find()) {
+                return this.invertWorlds;
+            }
         }
+
+        return !this.invertWorlds;
     }
 
     public String formattedDescription() {
         return new StringBuilder().append(ChatColor.GREEN).append(metadata).append(':').append('\n').
-                append(ChatColor.GOLD).append("  Invert Permissions: ").append(ChatFormat.aqua(String.valueOf(invertPermissions))).append('\n').
-                append(ChatColor.GOLD).append("  Invert Worlds: ").append(ChatFormat.aqua(String.valueOf(invertWorlds))).append('\n').
-                append(ChatColor.GOLD).append("  Disallowed Worlds: ").append(ChatFormat.aqua(StringHelper.joinArray(this.disallowedWorlds.toArray(new String[0]), 0, ", "))).append('\n').
-                append(ChatColor.GOLD).append("  Place Permission: ").append(ChatFormat.aqua(DisplayLimiterCommand.nullPermsCheck(placePermission))).append('\n').
-                append(ChatColor.GOLD).append("  Break Permissions: ").append(ChatFormat.aqua(DisplayLimiterCommand.nullPermsCheck(breakPermission))).append('\n').
-                append(ChatColor.GOLD).append("  Interact Permissions: ").append(ChatFormat.aqua(DisplayLimiterCommand.nullPermsCheck(interactPermission))).append('\n').
-                append(ChatColor.GOLD).append("  Pickup Permissions: ").append(ChatFormat.aqua(DisplayLimiterCommand.nullPermsCheck(pickupPermission))).append('\n').
-                append(ChatColor.GOLD).append("  Inv Click Permissions: ").append(ChatFormat.aqua(DisplayLimiterCommand.nullPermsCheck(invClickPermission))).append('\n').
-                append(ChatColor.GOLD).append("  No Pickup Message: ").append(ChatFormat.aqua(noPickupMessage)).append('\n').
-                append(ChatColor.GOLD).append("  No Inv Click Message: ").append(ChatFormat.aqua(noInvClickMessage)).append('\n').
-                append(ChatColor.GOLD).append("  No Place Message: ").append(ChatFormat.aqua(noPlaceMessage)).append('\n').
-                append(ChatColor.GOLD).append("  No Break Message: ").append(ChatFormat.aqua(noBreakMessage)).append('\n').
-                append(ChatColor.GOLD).append("  No Interact Message: ").append(ChatFormat.aqua(noInteractMessage)).
+                append(ChatColor.GOLD).append("  Invert Permissions: ").append(ChatColor.AQUA).append(invertPermissions).append('\n').
+                append(ChatColor.GOLD).append("  Invert Worlds: ").append(ChatColor.AQUA).append(String.valueOf(invertWorlds)).append('\n').
+                append(ChatColor.GOLD).append("  Disallowed Worlds: ").append(ChatColor.AQUA).append(StringHelper.joinArray(this.disallowedWorlds.toArray(new String[0]), 0, ", ")).append('\n').
+                append(ChatColor.GOLD).append("  Place Permission: ").append(ChatColor.AQUA).append(DisplayLimiterCommand.nullPermsCheck(placePermission)).append('\n').
+                append(ChatColor.GOLD).append("  Break Permissions: ").append(ChatColor.AQUA).append(DisplayLimiterCommand.nullPermsCheck(breakPermission)).append('\n').
+                append(ChatColor.GOLD).append("  Interact Permissions: ").append(ChatColor.AQUA).append(DisplayLimiterCommand.nullPermsCheck(interactPermission)).append('\n').
+                append(ChatColor.GOLD).append("  Pickup Permissions: ").append(ChatColor.AQUA).append(DisplayLimiterCommand.nullPermsCheck(pickupPermission)).append('\n').
+                append(ChatColor.GOLD).append("  Inv Click Permissions: ").append(ChatColor.AQUA).append(DisplayLimiterCommand.nullPermsCheck(invClickPermission)).append('\n').
+                append(ChatColor.GOLD).append("  No Pickup Message: ").append(ChatColor.AQUA).append(noPickupMessage).append('\n').
+                append(ChatColor.GOLD).append("  No Inv Click Message: ").append(ChatColor.AQUA).append(noInvClickMessage).append('\n').
+                append(ChatColor.GOLD).append("  No Place Message: ").append(ChatColor.AQUA).append(noPlaceMessage).append('\n').
+                append(ChatColor.GOLD).append("  No Break Message: ").append(ChatColor.AQUA).append(noBreakMessage).append('\n').
+                append(ChatColor.GOLD).append("  No Interact Message: ").append(ChatColor.AQUA).append(noInteractMessage).
                 append(ChatColor.GOLD).toString();
     }
 }

@@ -1,50 +1,39 @@
 package reghzy.advbanitem.command.commands.single;
 
-import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import reghzy.advbanitem.AdvancedBanItem;
-import reghzy.advbanitem.command.CommandDescriptor;
-import reghzy.advbanitem.command.ExecutableCommand;
-import reghzy.advbanitem.command.helpers.ArgsParser;
-import reghzy.advbanitem.command.helpers.ParsedValue;
-import reghzy.advbanitem.permissions.PermissionsHelper;
-import reghzy.advbanitem.logs.ChatLogger;
+import reghzy.advbanitem.command.ABIPermission;
+import reghzy.mfunclagfind.command.ExecutableCommand;
+import reghzy.mfunclagfind.command.utils.CommandArgs;
+import reghzy.mfunclagfind.command.utils.REghZyLogger;
+import reghzy.mfunclagfind.permissions.IPermission;
 
-public class LookBlockInfoCommand implements ExecutableCommand {
+public class LookBlockInfoCommand extends ExecutableCommand {
     public static final int DefaultDistance = 100;
-    public static final CommandDescriptor descriptor =
-            new CommandDescriptor(
-                    "look",
-                    "[distance]",
-                    "Gets the ID and Data of the block you're looking at");
+
+    public LookBlockInfoCommand() {
+        super("abi", null, "look", "[distance]", "Gets the ID and Meta of the block you're looking at");
+    }
 
     @Override
-    public void execute(CommandSender sender, ChatLogger logger, String[] args) {
+    public IPermission getPermission() {
+        return ABIPermission.look;
+    }
+
+    @Override
+    public void execute(CommandSender sender, REghZyLogger logger, CommandArgs args) {
         if (!(sender instanceof Player)) {
-            logger.logInfoPrefix("You're not a player... mr console -_-");
-            return;
-        }
-        if (!PermissionsHelper.hasPermissionOrOp((Player) sender, AdvancedBanItem.LookHandInfoPermission)) {
-            logger.logInfoPrefix("You dont have permissiont to use this command!");
+            logger.logPrefix("You're not a player... mr console -_-");
             return;
         }
 
-        ParsedValue<Integer> distance = ArgsParser.parseInteger(args, 0);
-        if (distance.failed) {
-            distance.value = DefaultDistance;
-        }
-
-        Player player = (Player) sender;
-        Block block = player.getTargetBlock(null, distance.value);
+        Block block = ((Player) sender).getTargetBlock(null, args.getInteger(0, DefaultDistance));
         if (block.isEmpty()) {
-            logger.logInfo("You're not looking at anything, just air. Add a distant on the end of the command to look further");
+            logger.logPrefix("You're not looking at anything, just air. Add a distant on the end of the command to look further");
         }
         else {
-            logger.logInfo("Block ID: " + ChatColor.GREEN + block.getTypeId() + ChatColor.GOLD +
-                           ", Block Data: " + ChatColor.LIGHT_PURPLE + block.getData() + ChatColor.GOLD + ". " +
-                           ChatColor.GREEN + block.getTypeId() + ":" + block.getData());
+            logger.logFormat("&6Block ID: &a{0}&6, Block Data: &2{1}&6. &a{2}&6:&2{3}", block.getTypeId(), block.getData(), block.getTypeId(), block.getData());
         }
     }
 }

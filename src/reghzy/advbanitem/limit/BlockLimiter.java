@@ -1,10 +1,10 @@
 package reghzy.advbanitem.limit;
 
-import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
-import reghzy.advbanitem.helpers.StringHelper;
-import reghzy.advbanitem.logs.ChatFormat;
-import reghzy.advbanitem.logs.ChatLogger;
+import reghzy.mfunclagfind.command.utils.REghZyLogger;
+import reghzy.mfunclagfind.utils.exception.InvalidDataException;
+import reghzy.mfunclagfind.utils.text.FormatMFLF;
+import reghzy.mfunclagfind.utils.text.StringHelper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -63,11 +63,12 @@ public class BlockLimiter {
         this.defaultNoInvClickMessage  = defaultNoInvClickMessage;
     }
 
-    public static BlockLimiter createFromConfigSection(ConfigurationSection limitedIdSection, int id, ChatLogger logger) {
+    public static BlockLimiter createFromConfigSection(ConfigurationSection limitedIdSection, int id, REghZyLogger logger) {
         List<String> defaultDisallowedWorlds = LimitConfigHelper.getDefaultDisallowedWorlds(limitedIdSection);
         boolean defaultInvertPermissions     = LimitConfigHelper.getDefaultInvertPermissions(limitedIdSection);
         boolean defaultInvertWorlds          = LimitConfigHelper.getDefaultInvertWorlds(limitedIdSection);
         boolean defaultUseNbt                = LimitConfigHelper.getDefaultUseNBT(limitedIdSection);
+        boolean defaultDestroyOnCancel       = LimitConfigHelper.getDefaultDestroyOnCancel(limitedIdSection);
         List<String> defaultNbtFilters       = LimitConfigHelper.getDefaultNbtFilters(limitedIdSection);
         String defaultPlacePermission        = LimitConfigHelper.getDefaultPlacePermission(limitedIdSection);
         String defaultBreakPermission        = LimitConfigHelper.getDefaultBreakPermission(limitedIdSection);
@@ -86,7 +87,9 @@ public class BlockLimiter {
             metaLimits = new HashMap<Integer, MetaLimit>(1);
             metaLimits.put(-1, new MetaLimit(
                     id, -1, defaultDisallowedWorlds,
-                    defaultInvertPermissions, defaultInvertWorlds, false, new ArrayList<String>(), false,
+                    defaultInvertPermissions, defaultInvertWorlds, false,
+                    new ArrayList<String>(), false,
+                    defaultDestroyOnCancel,
                     defaultPlacePermission, defaultBreakPermission, defaultInteractPermission,
                     defaultPickupPermission == null ? defaultInteractPermission : defaultPickupPermission,
                     defaultInvClickPermission == null ? defaultInteractPermission : defaultInvClickPermission,
@@ -100,7 +103,9 @@ public class BlockLimiter {
                 metaLimits = new HashMap<Integer, MetaLimit>(1);
                 metaLimits.put(-1, new MetaLimit(
                         id, -1, defaultDisallowedWorlds,
-                        defaultInvertPermissions, defaultInvertWorlds, false, new ArrayList<String>(), false,
+                        defaultInvertPermissions, defaultInvertWorlds,
+                        false, new ArrayList<String>(), false,
+                        defaultDestroyOnCancel,
                         defaultPlacePermission, defaultBreakPermission, defaultInteractPermission,
                         defaultPickupPermission == null ? defaultInteractPermission : defaultPickupPermission,
                         defaultInvClickPermission == null ? defaultInteractPermission : defaultInvClickPermission,
@@ -113,16 +118,16 @@ public class BlockLimiter {
                 for (String metaKey : metaIds) {
                     Integer meta = StringHelper.parseInteger(metaKey);
                     if (meta == null) {
-                        logger.logPlugin(ChatColor.RED + "Failed to parse integer for metadata list: " + ChatFormat.apostrophise(metaKey) + " for ID: " + ChatFormat.apostrophise(String.valueOf(id)));
-                        logger.logPlugin(ChatColor.RED + "Ignoring that limit");
-                        return null;
+                        throw new InvalidDataException(FormatMFLF.format("The number in the meta section was not a number! for ID: {0}, invalid meta: {1}", id, metaKey));
                     }
 
                     ConfigurationSection metaSection = metaSections.getConfigurationSection(metaKey);
                     if (metaSection == null) {
                         metaLimits.put(meta, new MetaLimit(
                                 id, meta, defaultDisallowedWorlds,
-                                defaultInvertPermissions, defaultInvertWorlds, false, new ArrayList<String>(), false,
+                                defaultInvertPermissions, defaultInvertWorlds, false,
+                                new ArrayList<String>(), false,
+                                defaultDestroyOnCancel,
                                 defaultPlacePermission, defaultBreakPermission, defaultInteractPermission,
                                 defaultPickupPermission == null ? defaultInteractPermission : defaultPickupPermission,
                                 defaultInvClickPermission == null ? defaultInteractPermission : defaultInvClickPermission,
@@ -136,6 +141,7 @@ public class BlockLimiter {
                         boolean invertWorlds      = LimitConfigHelper.getInvertWorlds(metaSection, defaultInvertWorlds);
                         boolean useNbt            = LimitConfigHelper.getUseNbt(metaSection, defaultUseNbt);
                         boolean cancelOnNbtMatch  = LimitConfigHelper.getCancelEventOnNBTMatch(metaSection, false);
+                        boolean destroyOnCancel   = LimitConfigHelper.getDestroyOnCancel(metaSection, defaultDestroyOnCancel);
                         List<String> nbtFilters   = LimitConfigHelper.getNbtFilters(metaSection, defaultNbtFilters);
                         String placePermission    = LimitConfigHelper.getPlacePermission(metaSection, defaultPlacePermission);
                         String breakPermission    = LimitConfigHelper.getBreakPermission(metaSection, defaultBreakPermission);
@@ -151,6 +157,7 @@ public class BlockLimiter {
                                 id, meta, disallowedWorlds,
                                 invertPermissions, invertWorlds,
                                 useNbt, nbtFilters, cancelOnNbtMatch,
+                                destroyOnCancel,
                                 placePermission, breakPermission, interactPermission,
                                 pickupPermission, invClickPermission,
                                 noPlaceMessage, noBreakMessage, noInteractMessage,
@@ -170,10 +177,6 @@ public class BlockLimiter {
                 defaultNoPickupMessage == null ? defaultInteractMessage : defaultNoPickupMessage,
                 defaultNoInvClickMessage == null ? defaultInteractMessage : defaultNoInvClickMessage);
     }
-
-    //public void saveToConfigSection(ConfigurationSection section) {
-    //
-    //}
 
     public MetaLimit getMetaLimit(int data) {
         MetaLimit ignore = getIgnoreMeta();

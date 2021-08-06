@@ -1,33 +1,32 @@
 package reghzy.advbanitem.command.commands.single;
 
+import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import reghzy.advbanitem.AdvancedBanItem;
-import reghzy.advbanitem.command.CommandDescriptor;
-import reghzy.advbanitem.command.ExecutableCommand;
-import reghzy.advbanitem.permissions.PermissionsHelper;
+import reghzy.advbanitem.command.ABIPermission;
 import reghzy.advbanitem.limit.BlockLimiter;
-import reghzy.advbanitem.logs.ChatFormat;
-import reghzy.advbanitem.logs.ChatLogger;
+import reghzy.mfunclagfind.command.ExecutableCommand;
+import reghzy.mfunclagfind.command.utils.CommandArgs;
+import reghzy.mfunclagfind.command.utils.REghZyLogger;
+import reghzy.mfunclagfind.permissions.IPermission;
+import reghzy.mfunclagfind.utils.text.StringJoiner;
 
-public class ListAllLimitsCommand implements ExecutableCommand {
-    public static final CommandDescriptor descriptor =
-            new CommandDescriptor(
-                    "list",
-                    "",
-                    "Displays all of the block limiters");
+public class ListAllLimitsCommand extends ExecutableCommand {
+    public ListAllLimitsCommand() {
+        super("abi", null, "listall", null, "Displays all of the limited IDs and metadatas");
+    }
+
+    public IPermission getPermission() {
+        return ABIPermission.listAll;
+    }
 
     @Override
-    public void execute(CommandSender sender, ChatLogger logger, String[] args) {
-        if (!PermissionsHelper.isConsoleOrHasPermsOrOp(sender, AdvancedBanItem.DisplayLimiterPermission)) {
-            logger.logInfoPrefix("You dont have permission for this command!");
-            return;
+    public void execute(CommandSender sender, REghZyLogger logger, CommandArgs args) {
+        logger.logPrefix("List of limited/banned IDs:");
+        StringJoiner joiner = new StringJoiner(", ");
+        for (BlockLimiter limiter : AdvancedBanItem.getInstance().getLimitManager().getBlockLimiters().values()) {
+            joiner.append(ChatColor.GREEN.toString() + limiter.id);
         }
-
-        logger.logInfoPrefix("List of limited/banned IDs:");
-        StringBuilder ids = new StringBuilder(64);
-        for(BlockLimiter limiter : AdvancedBanItem.getInstance().getLimitManager().getBlockLimiters().values()) {
-            ids.append(ChatFormat.green(String.valueOf(limiter.id)));
-        }
-        logger.logInfo(ids.toString());
+        logger.logPrefix(joiner.toString());
     }
 }

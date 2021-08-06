@@ -1,0 +1,11 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="cauldoren" type="JarApplication" folderName="mc">
+    <option name="JAR_PATH" value="$PROJECT_DIR$/../../MinecraftUtils/server/tekkitmain-1.6.4/cauldron.jar" />
+    <option name="VM_PARAMETERS" value="-Xmx2000M -Xms2000M" />
+    <option name="PROGRAM_PARAMETERS" value="nogui pause" />
+    <option name="WORKING_DIRECTORY" value="F:\MinecraftUtils\server\tekkitmain-1.6.4" />
+    <option name="ALTERNATIVE_JRE_PATH" />
+    <module name="AdvancedBanItem" />
+    <method v="2" />
+  </configuration>
+</component>

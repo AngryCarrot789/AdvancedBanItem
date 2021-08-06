@@ -1,26 +1,15 @@
 package reghzy.advbanitem.limit;
 
-import com.avaje.ebeaninternal.server.lib.util.InvalidDataException;
-import net.minecraft.server.v1_6_R3.NBTBase;
-import net.minecraft.server.v1_6_R3.NBTTagByte;
-import net.minecraft.server.v1_6_R3.NBTTagByteArray;
-import net.minecraft.server.v1_6_R3.NBTTagCompound;
-import net.minecraft.server.v1_6_R3.NBTTagDouble;
-import net.minecraft.server.v1_6_R3.NBTTagFloat;
-import net.minecraft.server.v1_6_R3.NBTTagInt;
-import net.minecraft.server.v1_6_R3.NBTTagIntArray;
-import net.minecraft.server.v1_6_R3.NBTTagList;
-import net.minecraft.server.v1_6_R3.NBTTagLong;
-import net.minecraft.server.v1_6_R3.NBTTagShort;
-import net.minecraft.server.v1_6_R3.NBTTagString;
-import reghzy.advbanitem.helpers.StringHelper;
-import sun.font.GlyphLayout;
+import net.minecraft.server.v1_6_R3.*;
+import reghzy.mfunclagfind.utils.text.StringHelper;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
 public class NBTNodeMatcher {
+    reghzy.mfunclagfind.nbt.NBTNodeMatcher nbtNodeMatcher;
+
     public ArrayList<String> nodes;
     public String findValue;
     public boolean checkContains;
@@ -30,7 +19,7 @@ public class NBTNodeMatcher {
         if (valueSplit == -1) {
             valueSplit = full.indexOf('~');
             if (valueSplit == -1) {
-                throw new InvalidDataException("There was no equals sign!");
+                throw new RuntimeException("There was no equals (=) or containment (~) sign!");
             }
 
             checkContains = true;
@@ -41,13 +30,7 @@ public class NBTNodeMatcher {
 
         String nodes = full.substring(0, valueSplit);
         this.findValue = full.substring(valueSplit + 1).replace('_', ' ');
-
-        String[] split = nodes.split("\\.");
-        if (split.length == 0) {
-            return;
-        }
-
-        this.nodes = new ArrayList<String>(Arrays.asList(split));
+        this.nodes = new ArrayList<String>(Arrays.asList(nodes.split("\\.")));
     }
 
     public NBTMatchResult matchNbtTree(NBTTagCompound nbt) {
@@ -81,34 +64,32 @@ public class NBTNodeMatcher {
                         return NBTMatchResult.NBT_MATCH_SUCCESS;
                     }
                 }
-                else {
-                    if (node.startsWith("*")) {
-                        Integer index = StringHelper.parseInteger(node.substring(1));
-                        if (index == null) {
-                            return NBTMatchResult.NBT_TREE_NOT_FOUND;
-                        }
+                else if (node.startsWith("*")) {
+                    Integer index = StringHelper.parseInteger(node.substring(1));
+                    if (index == null) {
+                        return NBTMatchResult.NBT_TREE_NOT_FOUND;
+                    }
 
-                        Collection keys = tagCompound.c();
-                        if (index >= keys.size()) {
-                            return NBTMatchResult.NBT_TREE_NOT_FOUND;
-                        }
+                    Collection keys = tagCompound.c();
+                    if (index >= keys.size()) {
+                        return NBTMatchResult.NBT_TREE_NOT_FOUND;
+                    }
 
-                        int k = 0;
-                        for(Object key : keys) {
-                            if (k == index) {
-                                if (!tagCompound.hasKey(key.toString())) {
-                                    return NBTMatchResult.NBT_TREE_NOT_FOUND;
-                                }
-
-                                next = tagCompound.get(key.toString());
-                                break;
+                    int k = 0;
+                    for (Object key : keys) {
+                        if (k == index) {
+                            if (!tagCompound.hasKey(key.toString())) {
+                                return NBTMatchResult.NBT_TREE_NOT_FOUND;
                             }
-                            k++;
+
+                            next = tagCompound.get(key.toString());
+                            break;
                         }
+                        k++;
                     }
-                    else {
-                        next = tagCompound.get(node);
-                    }
+                }
+                else {
+                    next = tagCompound.get(node);
                 }
             }
             else if (next instanceof NBTTagList) {

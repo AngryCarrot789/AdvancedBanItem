@@ -1,6 +1,7 @@
 package reghzy.advbanitem.listeners;
 
 import org.bukkit.block.Block;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -11,9 +12,10 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.inventory.ItemStack;
-import reghzy.advbanitem.REghZyBasePlugin;
-import reghzy.advbanitem.config.Config;
+import org.bukkit.plugin.Plugin;
 import reghzy.advbanitem.limit.LimitManager;
+import reghzy.mfunclagfind.utils.BaseListener;
+import reghzy.mfunclagfind.utils.types.BoolRef;
 
 public class PlayerListeners extends BaseListener implements Listener {
     private final LimitManager limitManager;
@@ -22,16 +24,19 @@ public class PlayerListeners extends BaseListener implements Listener {
     public static boolean ProcessPlacedBlockInteraction = true;
     public static boolean AllowDropFromInventory = true;
 
-    public PlayerListeners(LimitManager limitManager, REghZyBasePlugin plugin) {
+    private final BoolRef destroyOnCancel;
+
+    public PlayerListeners(LimitManager limitManager, Plugin plugin) {
         super(plugin);
         this.limitManager = limitManager;
-        registerEvent(this);
+        this.destroyOnCancel = new BoolRef();
+        register(this);
     }
 
-    public static void reloadInfoFromConfig(Config config) {
-        CountAirAsInteraction = config.getBoolean("CountAirAsInteraction");
-        ProcessPlacedBlockInteraction = config.getBoolean("ProcessPlacedBlockInteraction");
-        AllowDropFromInventory = config.getBoolean("AllowDropFromInventory");
+    public static void reloadInfoFromConfig(ConfigurationSection section) {
+        CountAirAsInteraction = section.getBoolean("CountAirAsInteraction");
+        ProcessPlacedBlockInteraction = section.getBoolean("ProcessPlacedBlockInteraction");
+        AllowDropFromInventory = section.getBoolean("AllowDropFromInventory");
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -43,15 +48,18 @@ public class PlayerListeners extends BaseListener implements Listener {
                 if (item == null)
                     return;
 
-                if (limitManager.shouldCancelInteract(event.getPlayer(), item)) {
+                if (limitManager.shouldCancelInteract(event.getPlayer(), item, this.destroyOnCancel)) {
                     event.setCancelled(true);
+                    if (getAndClear(destroyOnCancel)) {
+                        event.getPlayer().setItemInHand(null);
+                    }
                 }
             }
         }
         else if (action == Action.LEFT_CLICK_BLOCK || action == Action.RIGHT_CLICK_BLOCK) {
             ItemStack item = event.getItem();
             if (item != null) {
-                if (limitManager.shouldCancelInteract(event.getPlayer(), item)) {
+                if (limitManager.shouldCancelInteract(event.getPlayer(), item, this.destroyOnCancel)) {
                     event.setCancelled(true);
                     return;
                 }
@@ -59,8 +67,12 @@ public class PlayerListeners extends BaseListener implements Listener {
             if (ProcessPlacedBlockInteraction) {
                 Block block = event.getClickedBlock();
                 if (block != null) {
-                    if (limitManager.shouldCancelInteract(event.getPlayer(), block)) {
+                    if (limitManager.shouldCancelInteract(event.getPlayer(), block, this.destroyOnCancel)) {
                         event.setCancelled(true);
+
+                        if (getAndClear(destroyOnCancel)) {
+                            event.getPlayer().setItemInHand(null);
+                        }
                     }
                 }
             }
@@ -77,8 +89,12 @@ public class PlayerListeners extends BaseListener implements Listener {
         if (stack == null)
             return;
 
-        if (limitManager.shouldCancelInventoryClick((Player) event.getWhoClicked(), stack)) {
+        if (limitManager.shouldCancelInventoryClick((Player) event.getWhoClicked(), stack, this.destroyOnCancel)) {
             event.setCancelled(true);
+
+            if (getAndClear(destroyOnCancel)) {
+                event.getWhoClicked().setItemInHand(null);
+            }
         }
     }
 
@@ -87,8 +103,18 @@ public class PlayerListeners extends BaseListener implements Listener {
         if (event.getItem() == null)
             return;
 
-        if (limitManager.shouldCancelPickup(event.getPlayer(), event.getItem())) {
+        if (limitManager.shouldCancelPickup(event.getPlayer(), event.getItem(), this.destroyOnCancel)) {
             event.setCancelled(true);
+
+            if (getAndClear(destroyOnCancel)) {
+                event.getPlayer().setItemInHand(null);
+            }
         }
+    }
+
+    public static boolean getAndClear(BoolRef ref) {
+        boolean value = ref.getValue();
+        ref.setValue(false);
+        return value;
     }
 }

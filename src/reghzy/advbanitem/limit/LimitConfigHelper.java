@@ -1,7 +1,6 @@
 package reghzy.advbanitem.limit;
 
 import org.bukkit.configuration.ConfigurationSection;
-import reghzy.advbanitem.config.Config;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +22,7 @@ public class LimitConfigHelper {
     public static final String DefaultInvertWorldsName       = "DefaultInvertWorlds";
     public static final String DefaultUseNBTName             = "DefaultUseNBT";
     public static final String DefaultNBTFiltersName         = "DefaultNBTFilters";
+    public static final String DefaultDestroyOnCancelName    = "DefaultDestroyOnCancel";
     public static final String DefaultDisallowedWorldsName   = "DefaultDisallowedWorlds";
     public static final String DefaultPlacePermissionName    = "DefaultPlacePermission";
     public static final String DefaultBreakPermissionName    = "DefaultBreakPermission";
@@ -40,8 +40,9 @@ public class LimitConfigHelper {
     public static final String InvertPermissionsName  = "InvertPermissions";
     public static final String InvertWorldName        = "InvertWorlds";
     public static final String UseNBTName             = "UseNBT";
-    public static final String DisallowedWorldsName   = "DisallowedWorlds";
     public static final String NBTFiltersName         = "NBTFilters";
+    public static final String DestroyOnCancelName    = "DestroyOnCancel";
+    public static final String DisallowedWorldsName   = "DisallowedWorlds";
     public static final String CancelOnNBTMatchName   = "CancelEventOnNBTMatch";
     public static final String PlacePermissionName    = "PlacePermission";
     public static final String BreakPermissionName    = "BreakPermission";
@@ -107,6 +108,10 @@ public class LimitConfigHelper {
 
     public static boolean getDefaultUseNBT(ConfigurationSection section) {
         return section.getBoolean(DefaultUseNBTName, false);
+    }
+
+    public static boolean getDefaultDestroyOnCancel(ConfigurationSection section) {
+        return section.getBoolean(DefaultDestroyOnCancelName, false);
     }
 
     public static String getDefaultPlacePermission(ConfigurationSection section) {
@@ -183,6 +188,10 @@ public class LimitConfigHelper {
         return section.getBoolean(UseNBTName, defaultValue);
     }
 
+    public static boolean getDestroyOnCancel(ConfigurationSection section, boolean defaultValue) {
+        return section.getBoolean(DestroyOnCancelName, defaultValue);
+    }
+
     public static boolean getCancelEventOnNBTMatch(ConfigurationSection section, boolean defaultValue) {
         return section.getBoolean(CancelOnNBTMatchName, defaultValue);
     }
@@ -229,10 +238,10 @@ public class LimitConfigHelper {
 
     // ##############################################################################################
 
-    public static void reloadMainConfigInfo(Config config) {
-        FallbackNoPlaceMessage = config.getString(FallbackPlaceMessageName, "&4You don't have permission to place this block!");
-        FallbackNoBreakMessage = config.getString(FallbackBreakMessageName, "&4You don't have permission to break this block!");
-        FallbackNoInteractMessage = config.getString(FallbackInteractMessageName, "&4You don't have permission to interact with this block!");
+    public static void reloadMainConfigInfo(ConfigurationSection section) {
+        FallbackNoPlaceMessage = section.getString(FallbackPlaceMessageName, "&4You don't have permission to place this block!");
+        FallbackNoBreakMessage = section.getString(FallbackBreakMessageName, "&4You don't have permission to break this block!");
+        FallbackNoInteractMessage = section.getString(FallbackInteractMessageName, "&4You don't have permission to interact with this block!");
     }
 
     // ########################################## Setters ###########################################

@@ -23,14 +23,14 @@ AllowPermsPermissionBypass: true
 # a block is disallowed in a specific world, if a player has the bypass world
 # permission, they can place the block anyway. this isn't affected by "InvertWorlds"
 # but... that doesn't mean they can bypass the place/break/etc permission, that's a few lines down
-BypassWorldPermission: advbanitem.bypass.world
+BypassWorldPermission: bypasslimits.perms
 
 # the permission required to bypasses all of the limits for EVERY block, not a single block. if you only
 # want to bypass a specific block, you could just add the limit's permission to yourself in pex... and this
 # also IS NOT affected by "InvertPermissions" in the limits.yml config.
 # and also this permission doesn't skip the world check. if you have bypass perms, but the block
 # is disabled in the world (or if you dont have world bypass perms), you CAN NOT place the block.
-BypassPermsPermission: advbanitem.bypass.perms
+BypassPermsPermission: bypasslimits.perms
 
 # allows players to drop a banned item (that is stuck in their inventory if NoInvClickMessage is true in the limits.yml)
 # by pressing q

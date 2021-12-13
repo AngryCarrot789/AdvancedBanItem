@@ -1,4 +1,4 @@
-package reghzy.advbanitem.limit;
+package dragonjetz.advbanitem.limit;
 
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -6,13 +6,11 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import reghzy.advbanitem.AdvancedBanItem;
-import reghzy.mfunclagfind.command.utils.REghZyLogger;
-import reghzy.mfunclagfind.permissions.PermissionsHelper;
-import reghzy.mfunclagfind.utils.parse.ParsingService;
-import reghzy.mfunclagfind.utils.text.FormatMFLF;
-import reghzy.mfunclagfind.utils.text.StringHelper;
-import reghzy.mfunclagfind.utils.types.BoolRef;
+import dragonjetz.advbanitem.AdvancedBanItem;
+import dragonjetz.api.commands.utils.DJLogger;
+import dragonjetz.api.permission.PermissionManager;
+import dragonjetz.api.utils.text.StringHelper;
+import dragonjetz.api.utils.types.BoolRef;
 
 import java.util.HashMap;
 
@@ -36,20 +34,20 @@ public class LimitManager {
         // WorldLookup.clearDisallowedWorlds();
         blockLimiters.clear();
 
-        REghZyLogger logger = AdvancedBanItem.LOGGER;
+        DJLogger logger = AdvancedBanItem.LOGGER;
         for(String key : config.getKeys(false)) {
             try {
                 Integer id = StringHelper.parseInteger(key);
                 if (id == null) {
-                    logger.logPrefix("Failed to parse limiter key as an integer. Key: " + FormatMFLF.apostrophise(key));
+                    logger.logFormat("Failed to parse limiter key as an integer. Key: '{0}'", key);
                     if (StringHelper.countChar(key, ':') > 1) {
-                        logger.logPrefix("Make sure you dont put an ID and MetaData in the key, you must define the metadata within the block limiter section (see the example at the top of the config)");
+                        logger.logFormat("Make sure you dont put an ID and MetaData in the key, you must define the metadata within the block limiter section (see the example at the top of the config)");
                     }
                 }
                 else {
                     ConfigurationSection limitSection = config.getConfigurationSection(key);
                     if (limitSection == null) {
-                        logger.logPrefix("ID " + key + " had nothing in it");
+                        logger.logFormat("ID " + key + " had nothing in it");
                     }
                     else {
                         try {
@@ -57,7 +55,7 @@ public class LimitManager {
                             addLimiter(id, limiter);
                         }
                         catch (Exception e) {
-                            logger.logPrefix("Failed to create a limit from the config!");
+                            logger.logFormat("Failed to create a limit from the config!");
                             e.printStackTrace();
                         }
                     }
@@ -95,10 +93,10 @@ public class LimitManager {
     //        limiter.saveToConfigSection(limitedIdSection);
     //    }
     //    if (config.trySaveYaml()) {
-    //        ABICommandExecutor.ABILogger.logPrefix("Saved 'limits.yml' config");
+    //        ABICommandExecutor.ABILogger.logFormat("Saved 'limits.yml' config");
     //    }
     //    else {
-    //        ABICommandExecutor.ABILogger.logPrefix("Failed to save 'limits.yml' config");
+    //        ABICommandExecutor.ABILogger.logFormat("Failed to save 'limits.yml' config");
     //    }
     //}
 
@@ -302,9 +300,11 @@ public class LimitManager {
     }
 
     public boolean playerBypassesChecks(Player player) {
-        if (allowPermsBypass && PermissionsHelper.hasPermission(player, permsBypassPermission))
+        if (allowPermsBypass && PermissionManager.hasPermission(player, permsBypassPermission)) {
             return true;
-        return allowWorldBypass && PermissionsHelper.hasPermission(player, worldBypassPermission);
+        }
+
+        return allowWorldBypass && PermissionManager.hasPermission(player, worldBypassPermission);
     }
 
     public int limitsCount() {

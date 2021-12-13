@@ -1,15 +1,24 @@
-package reghzy.advbanitem.limit;
+package dragonjetz.advbanitem.limit;
 
-import net.minecraft.server.v1_6_R3.*;
-import reghzy.mfunclagfind.utils.text.StringHelper;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.nbt.NBTTagByte;
+import net.minecraft.nbt.NBTTagByteArray;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagDouble;
+import net.minecraft.nbt.NBTTagFloat;
+import net.minecraft.nbt.NBTTagInt;
+import net.minecraft.nbt.NBTTagIntArray;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTTagLong;
+import net.minecraft.nbt.NBTTagShort;
+import net.minecraft.nbt.NBTTagString;
+import dragonjetz.api.utils.text.StringHelper;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
 public class NBTNodeMatcher {
-    reghzy.mfunclagfind.nbt.NBTNodeMatcher nbtNodeMatcher;
-
     public ArrayList<String> nodes;
     public String findValue;
     public boolean checkContains;
@@ -43,7 +52,7 @@ public class NBTNodeMatcher {
             return NBTMatchResult.NBT_TREE_NOT_FOUND;
         }
 
-        if (!nbt.hasKey(this.nodes.get(0))) {
+        if (!nbt.func_74764_b(this.nodes.get(0))) {
             return NBTMatchResult.NBT_TREE_NOT_FOUND;
         }
 
@@ -54,12 +63,12 @@ public class NBTNodeMatcher {
         for (String node : this.nodes) {
             if (next instanceof NBTTagCompound) {
                 NBTTagCompound tagCompound = ((NBTTagCompound) next);
-                if ((!node.startsWith("*") && node.length() < 2) && !tagCompound.hasKey(node)) {
+                if ((!node.startsWith("*") && node.length() < 2) && !tagCompound.func_74764_b(node)) {
                     return NBTMatchResult.NBT_MATCH_FAILED;
                 }
 
                 if (i == endIndex) {
-                    String value = getNbtBaseData(tagCompound.get(node));
+                    String value = getNbtBaseData(tagCompound.func_74781_a(node));
                     if (value != null && match(value)) {
                         return NBTMatchResult.NBT_MATCH_SUCCESS;
                     }
@@ -70,26 +79,26 @@ public class NBTNodeMatcher {
                         return NBTMatchResult.NBT_TREE_NOT_FOUND;
                     }
 
-                    Collection keys = tagCompound.c();
-                    if (index >= keys.size()) {
+                    Collection<NBTBase> values = tagCompound.func_74758_c();
+                    if (index >= values.size()) {
                         return NBTMatchResult.NBT_TREE_NOT_FOUND;
                     }
 
                     int k = 0;
-                    for (Object key : keys) {
+                    for (NBTBase base : values) {
                         if (k == index) {
-                            if (!tagCompound.hasKey(key.toString())) {
+                            if (!tagCompound.func_74764_b(base.func_74740_e())) {
                                 return NBTMatchResult.NBT_TREE_NOT_FOUND;
                             }
 
-                            next = tagCompound.get(key.toString());
+                            next = tagCompound.func_74781_a(base.func_74740_e());
                             break;
                         }
                         k++;
                     }
                 }
                 else {
-                    next = tagCompound.get(node);
+                    next = tagCompound.func_74781_a(node);
                 }
             }
             else if (next instanceof NBTTagList) {
@@ -104,16 +113,16 @@ public class NBTNodeMatcher {
                         return NBTMatchResult.NBT_TREE_NOT_FOUND;
                     }
 
-                    if (index >= list.size()) {
+                    if (index >= list.func_74745_c()) {
                         return NBTMatchResult.NBT_TREE_NOT_FOUND;
                     }
 
-                    next = list.get(index);
+                    next = list.func_74743_b(index);
                 }
                 else {
-                    for (int j = 0, end = list.size(); j < end; j++) {
-                        NBTBase item = list.get(j);
-                        if ((item.getName().equalsIgnoreCase(node))) {
+                    for (int j = 0, end = list.func_74745_c(); j < end; j++) {
+                        NBTBase item = list.func_74743_b(j);
+                        if ((item.func_74740_e().equalsIgnoreCase(node))) {
                             next = item;
                             break;
                         }
@@ -128,16 +137,16 @@ public class NBTNodeMatcher {
 
                 if (next instanceof NBTTagIntArray) {
                     NBTTagIntArray array = ((NBTTagIntArray) next);
-                    if (index < array.data.length) {
-                        if (match(String.valueOf(array.data[index]))) {
+                    if (index < array.field_74749_a.length) {
+                        if (match(String.valueOf(array.field_74749_a[index]))) {
                             return NBTMatchResult.NBT_MATCH_SUCCESS;
                         }
                     }
                 }
                 else {
                     NBTTagByteArray array = ((NBTTagByteArray) next);
-                    if (index < array.data.length) {
-                        if(match(String.valueOf(array.data[index]))) {
+                    if (index < array.field_74754_a.length) {
+                        if(match(String.valueOf(array.field_74754_a[index]))) {
                             return NBTMatchResult.NBT_MATCH_SUCCESS;
                         }
                     }
@@ -164,19 +173,19 @@ public class NBTNodeMatcher {
 
     public static String getNbtBaseData(NBTBase base) {
         if (base instanceof NBTTagString)
-            return ((NBTTagString) base).data;
+            return ((NBTTagString) base).field_74751_a;
         else if (base instanceof NBTTagByte)
-            return String.valueOf(((NBTTagByte) base).data);
+            return String.valueOf(((NBTTagByte) base).field_74756_a);
         else if (base instanceof NBTTagShort)
-            return String.valueOf(((NBTTagShort) base).data);
+            return String.valueOf(((NBTTagShort) base).field_74752_a);
         else if (base instanceof NBTTagInt)
-            return String.valueOf(((NBTTagInt) base).data);
+            return String.valueOf(((NBTTagInt) base).field_74748_a);
         else if (base instanceof NBTTagLong)
-            return String.valueOf(((NBTTagLong) base).data);
+            return String.valueOf(((NBTTagLong) base).field_74753_a);
         else if (base instanceof NBTTagFloat)
-            return String.valueOf(((NBTTagFloat) base).data);
+            return String.valueOf(((NBTTagFloat) base).field_74750_a);
         else if (base instanceof NBTTagDouble)
-            return String.valueOf(((NBTTagDouble) base).data);
+            return String.valueOf(((NBTTagDouble) base).field_74755_a);
         else {
             // wut??? how can it not be one of these...
             // unless its the NBT end thing

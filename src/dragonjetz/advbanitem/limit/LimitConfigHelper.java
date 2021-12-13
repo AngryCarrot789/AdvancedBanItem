@@ -1,4 +1,4 @@
-package reghzy.advbanitem.limit;
+package dragonjetz.advbanitem.limit;
 
 import org.bukkit.configuration.ConfigurationSection;
 

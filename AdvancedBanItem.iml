@@ -20,17 +20,8 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../MinecraftUtils/plugins/api/craftbukkit-1.6.4.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES>
-          <root url="jar://$MODULE_DIR$/../../MinecraftUtils/plugins/api/craftbukkit-1.6.4.jar!/" />
-        </SOURCES>
-      </library>
-    </orderEntry>
+    <orderEntry type="library" name="plugin-lib" level="application" />
+    <orderEntry type="library" name="src" level="application" />
     <orderEntry type="module-library">
       <library>
         <CLASSES>
@@ -52,11 +43,11 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$USER_HOME$/Desktop/MFuncLagFind.jar!/" />
+          <root url="jar://$USER_HOME$/Desktop/CarrotTools.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="file://$MODULE_DIR$/../MFuncLagFind/src" />
+          <root url="jar://$USER_HOME$/Desktop/CarrotTools.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>

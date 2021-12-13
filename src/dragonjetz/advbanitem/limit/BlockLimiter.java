@@ -1,10 +1,10 @@
-package reghzy.advbanitem.limit;
+package dragonjetz.advbanitem.limit;
 
 import org.bukkit.configuration.ConfigurationSection;
-import reghzy.mfunclagfind.command.utils.REghZyLogger;
-import reghzy.mfunclagfind.utils.exception.InvalidDataException;
-import reghzy.mfunclagfind.utils.text.FormatMFLF;
-import reghzy.mfunclagfind.utils.text.StringHelper;
+import dragonjetz.api.commands.utils.DJLogger;
+import dragonjetz.api.exception.InvalidDataException;
+import dragonjetz.api.utils.text.DJFormats;
+import dragonjetz.api.utils.text.StringHelper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -63,7 +63,7 @@ public class BlockLimiter {
         this.defaultNoInvClickMessage  = defaultNoInvClickMessage;
     }
 
-    public static BlockLimiter createFromConfigSection(ConfigurationSection limitedIdSection, int id, REghZyLogger logger) {
+    public static BlockLimiter createFromConfigSection(ConfigurationSection limitedIdSection, int id, DJLogger logger) {
         List<String> defaultDisallowedWorlds = LimitConfigHelper.getDefaultDisallowedWorlds(limitedIdSection);
         boolean defaultInvertPermissions     = LimitConfigHelper.getDefaultInvertPermissions(limitedIdSection);
         boolean defaultInvertWorlds          = LimitConfigHelper.getDefaultInvertWorlds(limitedIdSection);
@@ -118,7 +118,7 @@ public class BlockLimiter {
                 for (String metaKey : metaIds) {
                     Integer meta = StringHelper.parseInteger(metaKey);
                     if (meta == null) {
-                        throw new InvalidDataException(FormatMFLF.format("The number in the meta section was not a number! for ID: {0}, invalid meta: {1}", id, metaKey));
+                        throw new InvalidDataException(DJFormats.format("The number in the meta section was not a number! for ID: {0}, invalid meta: {1}", id, metaKey));
                     }
 
                     ConfigurationSection metaSection = metaSections.getConfigurationSection(metaKey);

@@ -1,5 +1,6 @@
-package reghzy.advbanitem.listeners;
+package dragonjetz.advbanitem.listeners;
 
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
@@ -13,9 +14,9 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
-import reghzy.advbanitem.limit.LimitManager;
-import reghzy.mfunclagfind.utils.BaseListener;
-import reghzy.mfunclagfind.utils.types.BoolRef;
+import dragonjetz.advbanitem.limit.LimitManager;
+import dragonjetz.api.utils.BaseListener;
+import dragonjetz.api.utils.types.BoolRef;
 
 public class PlayerListeners extends BaseListener implements Listener {
     private final LimitManager limitManager;
@@ -39,18 +40,18 @@ public class PlayerListeners extends BaseListener implements Listener {
         AllowDropFromInventory = section.getBoolean("AllowDropFromInventory");
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onInteraction(PlayerInteractEvent event) {
         Action action = event.getAction();
         if (action == Action.LEFT_CLICK_AIR || action == Action.RIGHT_CLICK_AIR) {
             if (CountAirAsInteraction) {
                 ItemStack item = event.getItem();
-                if (item == null)
+                if (item == null || item.getType() == Material.AIR)
                     return;
 
                 if (limitManager.shouldCancelInteract(event.getPlayer(), item, this.destroyOnCancel)) {
                     event.setCancelled(true);
-                    if (getAndClear(destroyOnCancel)) {
+                    if (destroyOnCancel.getAndSet(false) && event.getPlayer().getItemInHand().equals(item)) {
                         event.getPlayer().setItemInHand(null);
                     }
                 }
@@ -58,63 +59,55 @@ public class PlayerListeners extends BaseListener implements Listener {
         }
         else if (action == Action.LEFT_CLICK_BLOCK || action == Action.RIGHT_CLICK_BLOCK) {
             ItemStack item = event.getItem();
-            if (item != null) {
+            if (item != null && item.getType() != Material.AIR) {
                 if (limitManager.shouldCancelInteract(event.getPlayer(), item, this.destroyOnCancel)) {
                     event.setCancelled(true);
+                    event.getPlayer().closeInventory();
+                    if (destroyOnCancel.getAndSet(false) && event.getPlayer().getItemInHand().equals(item)) {
+                        event.getPlayer().setItemInHand(null);
+                    }
+
                     return;
                 }
             }
+
             if (ProcessPlacedBlockInteraction) {
                 Block block = event.getClickedBlock();
                 if (block != null) {
                     if (limitManager.shouldCancelInteract(event.getPlayer(), block, this.destroyOnCancel)) {
                         event.setCancelled(true);
-
-                        if (getAndClear(destroyOnCancel)) {
-                            event.getPlayer().setItemInHand(null);
-                        }
+                        event.getPlayer().closeInventory();
                     }
                 }
             }
         }
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onInventoryClick(InventoryClickEvent event) {
         if (event.getClick() == ClickType.DROP && AllowDropFromInventory) {
             return;
         }
 
-        ItemStack stack = event.getCurrentItem();
-        if (stack == null)
+        ItemStack item = event.getCurrentItem();
+        if (item == null || item.getType() == Material.AIR)
             return;
 
-        if (limitManager.shouldCancelInventoryClick((Player) event.getWhoClicked(), stack, this.destroyOnCancel)) {
+        if (limitManager.shouldCancelInventoryClick((Player) event.getWhoClicked(), item, this.destroyOnCancel)) {
             event.setCancelled(true);
-
-            if (getAndClear(destroyOnCancel)) {
-                event.getWhoClicked().setItemInHand(null);
+            if (destroyOnCancel.getAndSet(false)) {
+                event.setCurrentItem(null);
             }
         }
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onItemPickup(PlayerPickupItemEvent event) {
         if (event.getItem() == null)
             return;
 
         if (limitManager.shouldCancelPickup(event.getPlayer(), event.getItem(), this.destroyOnCancel)) {
             event.setCancelled(true);
-
-            if (getAndClear(destroyOnCancel)) {
-                event.getPlayer().setItemInHand(null);
-            }
         }
-    }
-
-    public static boolean getAndClear(BoolRef ref) {
-        boolean value = ref.getValue();
-        ref.setValue(false);
-        return value;
     }
 }

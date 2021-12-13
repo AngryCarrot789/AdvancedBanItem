@@ -1,11 +1,11 @@
 name: AdvancedBanItem
-version: 1.6.324
+version: 1.8.354
 description: A plugin for limiting what blocks players can place, break or interact with based on permissions
-author: Carrot/REghZy
-main: reghzy.advbanitem.AdvancedBanItem
+author: 'Carrot/dragonjetz'
+main: 'dragonjetz.advbanitem.AdvancedBanItem'
 prefix: AdvancedBanItem
-softdepend:
-  - MFuncLagFind
+depend:
+  - CarrotTools
 
 commands:
   advbanitem:

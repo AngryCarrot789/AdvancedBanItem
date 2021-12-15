@@ -1,4 +1,4 @@
-package dragonjetz.advbanitem.limit;
+package reghzy.advbanitem.limit;
 
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -6,11 +6,11 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import dragonjetz.advbanitem.AdvancedBanItem;
-import dragonjetz.api.commands.utils.DJLogger;
-import dragonjetz.api.permission.PermissionManager;
-import dragonjetz.api.utils.text.StringHelper;
-import dragonjetz.api.utils.types.BoolRef;
+import reghzy.advbanitem.AdvancedBanItem;
+import reghzy.api.commands.utils.RZLogger;
+import reghzy.api.permission.PermissionManager;
+import reghzy.api.utils.text.StringHelper;
+import reghzy.api.utils.types.BoolRef;
 
 import java.util.HashMap;
 
@@ -34,7 +34,7 @@ public class LimitManager {
         // WorldLookup.clearDisallowedWorlds();
         blockLimiters.clear();
 
-        DJLogger logger = AdvancedBanItem.LOGGER;
+        RZLogger logger = AdvancedBanItem.LOGGER;
         for(String key : config.getKeys(false)) {
             try {
                 Integer id = StringHelper.parseInteger(key);

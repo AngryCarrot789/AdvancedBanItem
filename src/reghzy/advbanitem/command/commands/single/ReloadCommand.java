@@ -1,18 +1,18 @@
-package dragonjetz.advbanitem.command.commands.single;
+package reghzy.advbanitem.command.commands.single;
 
 import org.bukkit.command.CommandSender;
-import dragonjetz.advbanitem.AdvancedBanItem;
-import dragonjetz.advbanitem.command.ABIPermission;
-import dragonjetz.api.commands.ExecutableCommand;
-import dragonjetz.api.commands.ITabCompletable;
-import dragonjetz.api.commands.utils.CommandArgs;
-import dragonjetz.api.commands.utils.DJLogger;
-import dragonjetz.api.config.Config;
-import dragonjetz.api.config.ConfigManager;
-import dragonjetz.api.permission.IPermission;
-import dragonjetz.api.utils.ExceptionHelper;
-import dragonjetz.api.utils.memory.Lists;
-import dragonjetz.api.utils.text.DJFormats;
+import reghzy.advbanitem.AdvancedBanItem;
+import reghzy.advbanitem.command.ABIPermission;
+import reghzy.api.commands.ExecutableCommand;
+import reghzy.api.commands.ITabCompletable;
+import reghzy.api.commands.utils.CommandArgs;
+import reghzy.api.commands.utils.RZLogger;
+import reghzy.api.config.Config;
+import reghzy.api.config.ConfigManager;
+import reghzy.api.permission.IPermission;
+import reghzy.api.utils.ExceptionHelper;
+import reghzy.api.utils.memory.Lists;
+import reghzy.api.utils.text.RZFormats;
 
 import java.util.List;
 
@@ -27,7 +27,7 @@ public class ReloadCommand extends ExecutableCommand implements ITabCompletable 
     }
 
     @Override
-    public void execute(CommandSender sender, DJLogger logger, CommandArgs args) {
+    public void execute(CommandSender sender, RZLogger logger, CommandArgs args) {
         ConfigManager manager = AdvancedBanItem.getInstance().getConfigManager();
         if (!args.hasAnyArgs()) {
             logger.logFormat("You haven't provided a config name!");
@@ -45,7 +45,7 @@ public class ReloadCommand extends ExecutableCommand implements ITabCompletable 
             for (Config config : manager.getConfigs()) {
                 try {
                     manager.loadConfig(config);
-                    logger.logFormat(DJFormats.format("&6Loaded '&3{0}&6'", config.getConfigName()));
+                    logger.logFormat(RZFormats.format("&6Loaded '&3{0}&6'", config.getConfigName()));
                 }
                 catch (RuntimeException e) {
                     logger.logFormat("Failed to reload config {0}. See console...", config.getConfigName());
@@ -65,7 +65,7 @@ public class ReloadCommand extends ExecutableCommand implements ITabCompletable 
         Config config = manager.getConfig(configName);
         try {
             manager.loadConfig(config);
-            logger.logFormat(DJFormats.format("&6Loaded '&3{0}&6'", config.getConfigName()));
+            logger.logFormat(RZFormats.format("&6Loaded '&3{0}&6'", config.getConfigName()));
         }
         catch (RuntimeException e) {
             logger.logFormat("Failed to reload config {0}. See console...", config.getConfigName());
@@ -74,7 +74,7 @@ public class ReloadCommand extends ExecutableCommand implements ITabCompletable 
     }
 
     @Override
-    public List<String> doTabComplete(CommandSender sender, DJLogger logger, CommandArgs args, int argsIndex) {
+    public List<String> doTabComplete(CommandSender sender, RZLogger logger, CommandArgs args, int argsIndex) {
         return Lists.stringStartsWith(AdvancedBanItem.getInstance().getConfigManager().getConfigNames(), args.getString(0, ""));
     }
 }

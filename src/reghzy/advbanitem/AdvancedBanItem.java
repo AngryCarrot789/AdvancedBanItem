@@ -1,19 +1,21 @@
-package dragonjetz.advbanitem;
+package reghzy.advbanitem;
 
+import reghzy.advbanitem.command.ABICommandExecutor;
+import reghzy.api.commands.CommandManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import dragonjetz.advbanitem.limit.LimitConfigHelper;
-import dragonjetz.advbanitem.limit.LimitManager;
-import dragonjetz.advbanitem.listeners.BlockListeners;
-import dragonjetz.advbanitem.listeners.PlayerListeners;
-import dragonjetz.api.commands.utils.DJLogger;
-import dragonjetz.api.config.Config;
-import dragonjetz.api.config.ConfigLoadHandler;
-import dragonjetz.api.config.ConfigManager;
-import dragonjetz.api.config.ConfigPreSaveHandler;
-import dragonjetz.api.utils.ExceptionHelper;
+import reghzy.advbanitem.limit.LimitConfigHelper;
+import reghzy.advbanitem.limit.LimitManager;
+import reghzy.advbanitem.listeners.BlockListeners;
+import reghzy.advbanitem.listeners.PlayerListeners;
+import reghzy.api.commands.utils.RZLogger;
+import reghzy.api.config.Config;
+import reghzy.api.config.ConfigLoadHandler;
+import reghzy.api.config.ConfigManager;
+import reghzy.api.config.ConfigPreSaveHandler;
+import reghzy.api.utils.ExceptionHelper;
 
 public class AdvancedBanItem extends JavaPlugin {
-    public static final DJLogger LOGGER = new DJLogger("§6[§4Advanced§cBanItem§6]§r");
+    public static final RZLogger LOGGER = new RZLogger("§6[§4Advanced§cBanItem§6]§r");
 
     private static AdvancedBanItem INSTANCE;
     private LimitManager limitManager;
@@ -59,7 +61,7 @@ public class AdvancedBanItem extends JavaPlugin {
             }
         }
 
-        // CommandManager.registerMainClass(this, "advbanitem", ABICommandExecutor.class);
+        CommandManager.registerMainClass(this, "advbanitem", ABICommandExecutor.class);
     }
 
     @Override

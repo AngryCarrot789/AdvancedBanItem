@@ -1,16 +1,16 @@
-package dragonjetz.advbanitem.command.commands.single;
+package reghzy.advbanitem.command.commands.single;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
-import dragonjetz.advbanitem.AdvancedBanItem;
-import dragonjetz.advbanitem.command.ABIPermission;
-import dragonjetz.advbanitem.limit.BlockLimiter;
-import dragonjetz.advbanitem.limit.MetaLimit;
-import dragonjetz.api.commands.ExecutableCommand;
-import dragonjetz.api.commands.utils.CommandArgs;
-import dragonjetz.api.commands.utils.DJLogger;
-import dragonjetz.api.utils.text.StringHelper;
-import dragonjetz.api.permission.IPermission;
+import reghzy.advbanitem.AdvancedBanItem;
+import reghzy.advbanitem.command.ABIPermission;
+import reghzy.advbanitem.limit.BlockLimiter;
+import reghzy.advbanitem.limit.MetaLimit;
+import reghzy.api.commands.ExecutableCommand;
+import reghzy.api.commands.utils.CommandArgs;
+import reghzy.api.commands.utils.RZLogger;
+import reghzy.api.utils.text.StringHelper;
+import reghzy.api.permission.IPermission;
 
 public class DisplayLimiterCommand extends ExecutableCommand {
     public DisplayLimiterCommand() {
@@ -29,7 +29,7 @@ public class DisplayLimiterCommand extends ExecutableCommand {
     }
 
     @Override
-    public void execute(CommandSender sender, DJLogger logger, CommandArgs args) {
+    public void execute(CommandSender sender, RZLogger logger, CommandArgs args) {
         Integer id = args.getInteger(0);
         if (id == null) {
             logger.logFormat("Problem with the block id: it isn't a number!");

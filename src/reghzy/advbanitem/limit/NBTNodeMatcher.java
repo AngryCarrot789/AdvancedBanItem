@@ -1,4 +1,4 @@
-package dragonjetz.advbanitem.limit;
+package reghzy.advbanitem.limit;
 
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagByte;
@@ -12,7 +12,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagLong;
 import net.minecraft.nbt.NBTTagShort;
 import net.minecraft.nbt.NBTTagString;
-import dragonjetz.api.utils.text.StringHelper;
+import reghzy.api.utils.text.StringHelper;
 
 import java.util.ArrayList;
 import java.util.Arrays;

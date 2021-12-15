@@ -1,4 +1,4 @@
-package dragonjetz.advbanitem.limit;
+package reghzy.advbanitem.limit;
 
 public enum NBTMatchResult {
     NBT_SOURCE_NOT_FOUND,

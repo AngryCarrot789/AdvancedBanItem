@@ -1,6 +1,6 @@
-package dragonjetz.advbanitem.limit;
+package reghzy.advbanitem.limit;
 
-import dragonjetz.api.utils.NMSAPI;
+import reghzy.api.utils.NMSAPI;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -8,8 +8,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
-import dragonjetz.api.permission.PermissionManager;
-import dragonjetz.api.utils.text.StringHelper;
+import reghzy.api.permission.PermissionManager;
+import reghzy.api.utils.text.StringHelper;
 
 import java.util.ArrayList;
 import java.util.List;

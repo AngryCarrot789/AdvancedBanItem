@@ -1,4 +1,4 @@
-package dragonjetz.advbanitem.listeners;
+package reghzy.advbanitem.listeners;
 
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -14,9 +14,9 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
-import dragonjetz.advbanitem.limit.LimitManager;
-import dragonjetz.api.utils.BaseListener;
-import dragonjetz.api.utils.types.BoolRef;
+import reghzy.advbanitem.limit.LimitManager;
+import reghzy.api.utils.BaseListener;
+import reghzy.api.utils.types.BoolRef;
 
 public class PlayerListeners extends BaseListener implements Listener {
     private final LimitManager limitManager;

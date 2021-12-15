@@ -1,14 +1,14 @@
-package dragonjetz.advbanitem.command.commands.single;
+package reghzy.advbanitem.command.commands.single;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import dragonjetz.advbanitem.command.ABIPermission;
-import dragonjetz.api.commands.ExecutableCommand;
-import dragonjetz.api.commands.utils.CommandArgs;
-import dragonjetz.api.commands.utils.DJLogger;
-import dragonjetz.api.permission.IPermission;
+import reghzy.advbanitem.command.ABIPermission;
+import reghzy.api.commands.ExecutableCommand;
+import reghzy.api.commands.utils.CommandArgs;
+import reghzy.api.commands.utils.RZLogger;
+import reghzy.api.permission.IPermission;
 
 public class HandItemInfoCommand extends ExecutableCommand {
     public HandItemInfoCommand() {
@@ -21,7 +21,7 @@ public class HandItemInfoCommand extends ExecutableCommand {
     }
 
     @Override
-    public void execute(CommandSender sender, DJLogger logger, CommandArgs args) {
+    public void execute(CommandSender sender, RZLogger logger, CommandArgs args) {
         if (!(sender instanceof Player)) {
             logger.logFormat("You're not a player... mr console -_-");
             return;

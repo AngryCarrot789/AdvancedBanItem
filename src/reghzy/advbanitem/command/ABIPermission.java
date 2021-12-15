@@ -1,7 +1,7 @@
-package dragonjetz.advbanitem.command;
+package reghzy.advbanitem.command;
 
-import dragonjetz.api.permission.IPermission;
-import dragonjetz.api.permission.PermissionManager;
+import reghzy.api.permission.IPermission;
+import reghzy.api.permission.PermissionManager;
 
 public class ABIPermission {
     public static final IPermission MAIN_COMMAND = PermissionManager.registerPermission("ABI_MAIN_COMMAND", "advbanitem.maincommand");

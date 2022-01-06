@@ -39,7 +39,7 @@ public class NBTNodeMatcher {
 
         String nodes = full.substring(0, valueSplit);
         this.findValue = full.substring(valueSplit + 1).replace('_', ' ');
-        this.nodes = new ArrayList<String>(Arrays.asList(nodes.split("\\.")));
+        this.nodes = new ArrayList<String>(Arrays.asList(StringHelper.split(nodes, '.', 0)));
     }
 
     public NBTMatchResult matchNbtTree(NBTTagCompound nbt) {
@@ -172,7 +172,9 @@ public class NBTNodeMatcher {
     }
 
     public static String getNbtBaseData(NBTBase base) {
-        if (base instanceof NBTTagString)
+        if (base == null)
+            return null;
+        else if (base instanceof NBTTagString)
             return ((NBTTagString) base).field_74751_a;
         else if (base instanceof NBTTagByte)
             return String.valueOf(((NBTTagByte) base).field_74756_a);
@@ -187,8 +189,6 @@ public class NBTNodeMatcher {
         else if (base instanceof NBTTagDouble)
             return String.valueOf(((NBTTagDouble) base).field_74755_a);
         else {
-            // wut??? how can it not be one of these...
-            // unless its the NBT end thing
             return null;
         }
     }

@@ -51,6 +51,7 @@ public class PlayerListeners extends BaseListener implements Listener {
 
                 if (limitManager.shouldCancelInteract(event.getPlayer(), item, this.destroyOnCancel)) {
                     event.setCancelled(true);
+                    event.getPlayer().closeInventory(); // an item with an inventory; backpack
                     if (destroyOnCancel.getAndSet(false) && event.getPlayer().getItemInHand().equals(item)) {
                         event.getPlayer().setItemInHand(null);
                     }
@@ -62,7 +63,7 @@ public class PlayerListeners extends BaseListener implements Listener {
             if (item != null && item.getType() != Material.AIR) {
                 if (limitManager.shouldCancelInteract(event.getPlayer(), item, this.destroyOnCancel)) {
                     event.setCancelled(true);
-                    event.getPlayer().closeInventory();
+                    event.getPlayer().closeInventory(); // chest maybe
                     if (destroyOnCancel.getAndSet(false) && event.getPlayer().getItemInHand().equals(item)) {
                         event.getPlayer().setItemInHand(null);
                     }

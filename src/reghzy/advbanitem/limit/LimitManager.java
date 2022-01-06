@@ -126,7 +126,6 @@ public class LimitManager {
             return false;
 
         destroyOnCancel.setValue(meta.destroyOnCancel);
-
         if (meta.useNbt) {
             if (meta.tryNbtMatchTree(block).equals(NBTMatchResult.NBT_MATCH_SUCCESS)) {
                 if (meta.cancelOnNbtMatch) {
@@ -188,7 +187,6 @@ public class LimitManager {
             return false;
 
         destroyOnCancel.setValue(meta.destroyOnCancel);
-
         if (meta.useNbt) {
             if (meta.tryNbtMatchTree(block).equals(NBTMatchResult.NBT_MATCH_SUCCESS)) {
                 if (meta.cancelOnNbtMatch) {
@@ -279,7 +277,6 @@ public class LimitManager {
             return false;
 
         destroyOnCancel.setValue(meta.destroyOnCancel);
-
         if (meta.useNbt) {
             ItemStack itemStack = item.getItemStack();
             if (itemStack != null) {
@@ -312,7 +309,7 @@ public class LimitManager {
     }
 
     public static void sendDenyMessage(Player player, String message, MetaLimit metaUsedForInformation) {
-        player.sendMessage(AdvancedBanItem.LOGGER.chatPrefix + " " + translateWildcards(message, metaUsedForInformation, player));
+        AdvancedBanItem.LOGGER.setSender(player).logRaw(translateWildcards(message, metaUsedForInformation, player)).setSender(null);
     }
 
     public static String translateWildcards(String message, MetaLimit meta, Player player) {

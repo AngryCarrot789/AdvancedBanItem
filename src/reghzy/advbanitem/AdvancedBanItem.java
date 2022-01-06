@@ -1,5 +1,6 @@
 package reghzy.advbanitem;
 
+import org.bukkit.event.server.PluginEnableEvent;
 import reghzy.advbanitem.command.ABICommandExecutor;
 import reghzy.api.commands.CommandManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -27,7 +28,6 @@ public class AdvancedBanItem extends JavaPlugin {
     @Override
     public void onEnable() {
         INSTANCE = this;
-
         this.configManager = new ConfigManager(this);
         this.configManager.registerResourceConfig("config", new ConfigLoadHandler() {
             @Override

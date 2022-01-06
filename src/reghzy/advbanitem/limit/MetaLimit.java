@@ -113,7 +113,7 @@ public class MetaLimit {
     }
 
     public NBTMatchResult tryNbtMatchTree(Block block) {
-        TileEntity tileEntity = NMSAPI.getTileEntity(block);//((((CraftWorld) block.getWorld()).getHandle().getTileEntity(block.getX(), block.getY(), block.getZ())));
+        TileEntity tileEntity = NMSAPI.getTileEntity(block);
         if (tileEntity == null) {
             return NBTMatchResult.NBT_SOURCE_NOT_FOUND;
         }

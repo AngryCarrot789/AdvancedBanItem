@@ -59,20 +59,21 @@ public class DisplayLimiterCommand extends ExecutableCommand {
                 }
             }
         }
-        logger.logFormat("MetaData Limits:\n" + ChatColor.GOLD + metadataString.toString());
+        logger.logFormat("MetaData Limits:\n&6{0}", metadataString.toString());
         if (limiter.defaultDisallowedWorlds.size() == 0) {
-            logger.logFormat("Default Disallowed Worlds: " + ChatColor.RED + "There are none");
+            logger.logFormat("Default Disallowed Worlds: &cThere are none");
         }
         else {
-            logger.logFormat("Default Disallowed Worlds: " + ChatColor.DARK_AQUA + StringHelper.joinArray(limiter.defaultDisallowedWorlds.toArray(new String[0]), 0, ", "));
+            logger.logFormat("Default Disallowed Worlds: &3{0}", StringHelper.joinArray(limiter.defaultDisallowedWorlds.toArray(new String[0]), 0, ", "));
         }
-        logger.logFormat("Default Place Permission: " + ChatColor.DARK_AQUA + nullPermsCheck(limiter.defaultPlacePermission));
-        logger.logFormat("Default Break Permission: " + ChatColor.DARK_AQUA + nullPermsCheck(limiter.defaultBreakPermission));
-        logger.logFormat("Default Interact Permission: " + ChatColor.DARK_AQUA + nullPermsCheck(limiter.defaultInteractPermission));
-        logger.logFormat("Default Place Message: " + ChatColor.DARK_AQUA + limiter.defaultNoPlaceMessage);
-        logger.logFormat("Default Break Message: " + ChatColor.DARK_AQUA + limiter.defaultNoBreakMessage);
-        logger.logFormat("Default Interact Message: " + ChatColor.DARK_AQUA + limiter.defaultNoInteractMessage);
-        logger.logFormat("Default Invert Worlds: " + ChatColor.DARK_AQUA + limiter.defaultInvertWorld);
-        logger.logFormat("Default Invert Perms: " + ChatColor.DARK_AQUA + limiter.defaultInvertPermission);
+
+        logger.logFormat("Default Place Permission: &3{0}", nullPermsCheck(limiter.defaultPlacePermission));
+        logger.logFormat("Default Break Permission: &3{0}", nullPermsCheck(limiter.defaultBreakPermission));
+        logger.logFormat("Default Interact Permission: &3{0}", nullPermsCheck(limiter.defaultInteractPermission));
+        logger.logFormat("Default Place Message: &3{0}", limiter.defaultNoPlaceMessage);
+        logger.logFormat("Default Break Message: &3{0}", limiter.defaultNoBreakMessage);
+        logger.logFormat("Default Interact Message: &3{0}", limiter.defaultNoInteractMessage);
+        logger.logFormat("Default Invert Worlds: &3{0}", limiter.defaultInvertWorld);
+        logger.logFormat("Default Invert Perms: &3{0}", limiter.defaultInvertPermission);
     }
 }
